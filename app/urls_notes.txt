@@ -1,0 +1,27 @@
+
+"""
+Use /v1/, /v2/ nas URLs para manter compatibilidade.
+Novas versões não quebram as antigas, permitindo atualizações sem interrupções para os usuários,
+garantindo bom funcionamento e facilitando a migração gradual.
+
+Importância da Compatibilidade:
+
+Ao lançar uma nova versão da API (por exemplo, v2), a versão anterior (v1) continua funcionando.
+Isso garante que os clientes que já integraram a API não sejam prejudicados com as mudanças.
+
+
+Facilidade de Atualização:
+
+Quando o projeto evolui e há alterações significativas
+(como mudanças na estrutura dos dados ou funcionalidades críticas),
+a criação de novas URLs (ex.: /v2/generos) permite que os clientes possam migrar para a nova versão conforme sua conveniência,
+sem quebrar as integrações existentes.
+
+
+Boas Práticas e Organização:
+
+Além de manter a compatibilidade, essa abordagem promove a organização e a boa prática no desenvolvimento, já que versões antigas continuam operando enquanto as novas funcionalidades são lançadas.
+
+
+Esse processo de versionamento é fundamental para qualquer API, pois assegura que as atualizações possam ser implementadas sem causar interrupções ou falhas para os clientes que já utilizam versões anteriores.
+"""
