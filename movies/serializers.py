@@ -12,18 +12,6 @@ class MovieModelSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def get_rate(self, obj):
-        # reviews = obj.reviews.all()
-
-        # if reviews:
-        #     sum_reviews = 0
-        #     for review in reviews:
-        #         sum_reviews += review.stars
-
-        #     reviews_count = reviews.count()
-
-        #     return round(sum_reviews / reviews_count, 1)
-
-        # return None
 
         rate = obj.reviews.aggregate(Avg('stars'))['stars__avg']
         if rate:
@@ -37,3 +25,10 @@ class MovieModelSerializer(serializers.ModelSerializer):
     def validate_resume(self, value):
         if len(value) > 500:
             raise serializers.ValidationError('The resume can not have lenght more than 200 characters')
+
+
+class MovieStatsSerializer(serializers.Serializer):
+    total_movies = serializers.IntegerField()
+    movies_by_genre = serializers.ListField()
+    total_reviews = serializers.IntegerField()
+    average_stars = serializers.FloatField()
