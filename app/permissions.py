@@ -27,7 +27,7 @@ class GlobalDefaultPermission(permissions.BasePermission):
 
         return method_actions.get(method, '')
 
-    def __get_model_permission_codename(self, method,  view):
+    def __get_model_permission_codename(self, method, view):
 
         try:
             model_name = view.queryset.model._meta.model_name
