@@ -4,7 +4,8 @@ from rest_framework import response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from movies.models import Movie
-from movies.serializers import MovieModelSerializer, MovieStatsSerializer
+from movies.serializers import MovieModelSerializer
+from movies.serializers import MovieStatsSerializer
 
 from app.permissions import GlobalDefaultPermission
 from .services import stats

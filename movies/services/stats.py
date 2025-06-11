@@ -1,4 +1,7 @@
-from django.db.models import QuerySet, Count, Avg
+from django.db.models import Avg
+from django.db.models import Count
+from django.db.models import QuerySet
+
 from reviews.models import Review
 
 
