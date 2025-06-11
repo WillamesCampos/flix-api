@@ -7,8 +7,6 @@
 poetry.
 db.sqlite3
 
-Makefile
-
 .pg_flix
 
 notes
