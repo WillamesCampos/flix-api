@@ -1,0 +1,23 @@
+services:
+
+  flix_web:
+    build: .
+    restart: always
+    ports:
+      - 8000:8000
+    depends_on:
+      - flix_db
+
+  flix_db:
+    image: postgres:latest
+    ports:
+      - 5432:5432
+    volumes:
+      - .pg_flix:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=${PG_PASSWORD}
+      - POSTGRES_DB=${PG_NAME}
+
+volumes:
+  .pg_flix:
+
