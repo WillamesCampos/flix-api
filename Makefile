@@ -1,14 +1,28 @@
 # Docker
+network:
+	docker network create flix_network
 db:
 	docker run --name flix_db \
 	-e POSTGRES_DB=${PG_NAME} \
 	-e POSTGRES_PASSWORD=${PG_PASSWORD} \
 	-p ${PG_PORT}:${PG_PORT} \
 	-v "/home/willames/TI/Cursos/Django Master/flix-api/.pg_flix:/var/lib/postgresql/data" \
+	--network=flix_network \
 	-d postgres
+
 destroydb:
 	docker stop flix_db
 	docker rm flix_db
+
+web:
+	docker run  --name flix_web \
+	--env-file .env \
+	--network=flix_network \
+	-p 8000:8000 \
+	flix_web:0.1
+
+project:
+	docker-compose up
 
 # Django
 run:
