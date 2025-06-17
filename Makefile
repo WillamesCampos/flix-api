@@ -24,6 +24,9 @@ web:
 project:
 	docker-compose up
 
+projectbuild:
+	docker-compose up --build
+
 # Django
 run:
 	./manage.py runserver
@@ -50,8 +53,6 @@ requirements_dev:
 	--output=requirements_dev.txt
 
 	sed -i 's/ *;.*//' requirements_dev.txt
-
-
 
 # Linter
 
