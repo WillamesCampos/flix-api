@@ -12,5 +12,5 @@ jobs:
       - run: pip install --upgrade pip
       - run: pip install -r requirements.txt
       - run: pip install -r requirements_dev.txt
-      - run: docker-compose up
+      - run: docker-compose --version
 
