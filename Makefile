@@ -36,14 +36,13 @@ projectbuild:
 
 # Django
 test:
-	docker-compose exec -T flix_web python manage.py test
+	docker compose exec -T flix_web python manage.py test
 migrate:
-	docker-compose exec -T flix_web python manage.py migrate
-
+	docker compose exec -T flix_web python manage.py migrate
 makemigrations:
-	docker-compose exec -T flix_web python manage.py makemigrations
+	docker compose exec -T flix_web python manage.py makemigrations
 run:
-	docker-compse exec -T
+	docker compose exec -T flix_web python manage.py runserver
 
 # Poetry
 export_plugin:
