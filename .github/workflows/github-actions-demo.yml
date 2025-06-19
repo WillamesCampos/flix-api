@@ -48,6 +48,12 @@ jobs:
         run: |
           docker run --name flix_web \
           --network=flix_network \
+          -e PG_NAME=$PG_NAME \
+          -e PG_USER=$PG_USER \
+          -e PG_PASSWORD=$PG_PASSWORD \
+          -e PG_HOST=$PG_HOST \
+          -e PG_PORT=$PG_PORT \
+          -e DJANGO_SECRET_KEY=$DJANGO_SECRET_KEY \
           -p 8000:8000 \
           flix_web:0.1
 
