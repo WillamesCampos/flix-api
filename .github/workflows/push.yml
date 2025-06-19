@@ -31,8 +31,12 @@ jobs:
           docker ps -a
           docker compose logs flix_web
 
+      - name: Install Requirements Dev
+        run: pip install -r requirements_dev.txt
+
       - name: Lint check
-        run: make lint
+        run: |
+          make lint
 
       - name: Test Running
         run: make test
