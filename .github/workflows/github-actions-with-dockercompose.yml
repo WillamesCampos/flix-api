@@ -24,8 +24,8 @@ jobs:
 
       - name: Verificar estado do Projeto
         run: |
-          docker exec flix_web python manage.py check
           docker logs flix_web
+          docker exec flix_web python manage.py check
 
       - name: Rodar testes
         run: docker compose exec flix_web python manage.py test --verbosity=2
