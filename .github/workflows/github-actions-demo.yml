@@ -39,7 +39,8 @@ jobs:
         run: docker network create flix_network
 
       - name: Start DB Service
-        run: docker run --name ${PG_NAME} \
+        run: |
+          docker run --name ${PG_NAME} \
           -e POSTGRES_DB=${PG_NAME} \
           -e POSTGRES_PASSWORD=${PG_PASSWORD} \
           -p ${PG_PORT}:${PG_PORT} \
@@ -50,8 +51,9 @@ jobs:
         run: docker build --tag flix_web:0.1 .
 
       - name: Start Web Service
-        run: docker run --name flix_web \
-            --network=flix_network \
-            -p 8000:8000 \
-            flix_web:0.1
+        run: |
+          docker run --name flix_web \
+          --network=flix_network \
+          -p 8000:8000 \
+          flix_web:0.1
 
