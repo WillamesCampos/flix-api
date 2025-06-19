@@ -31,12 +31,6 @@ jobs:
       - name: Upgrade PIP
         run: pip install --upgrade pip
 
-      - name: Install Poetry
-        run: pip install poetry
-
-      - name: Init Poetry
-        run: poetry init --no-env
-
       - name: Install Requirements
         run: make poetry-equirements
 
