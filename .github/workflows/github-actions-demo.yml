@@ -5,6 +5,14 @@ on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      PG_NAME: ${{ secrets.PG_NAME }}
+      PG_USER: ${{ secrets.PG_USER }}
+      PG_PASSWORD: ${{ secrets.PG_PASSWORD }}
+      PG_HOST: ${{ secrets.PG_HOST }}
+      PG_PORT: ${{ secrets.PG_PORT }}
+      DJANGO_SECRET_KEY: ${{secrets.DJANGO_SECRET_KEY}}
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -13,14 +21,6 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-
-      - name: Set up environment variables
-        run: |
-          echo "PG_NAME=${{ secrets.PG_NAME }}" >> $GITHUB_ENV
-          echo "PG_USER=${{ secrets.PG_USER }}" >> $GITHUB_ENV
-          echo "PG_PASSWORD=${{ secrets.PG_PASSWORD }}" >> $GITHUB_ENV
-          echo "PG_HOST=${{ secrets.PG_HOST }}" >> $GITHUB_ENV
-          echo "PG_PORT=${{ secrets.PG_PORT }}" >> $GITHUB_ENV
 
       - name: Debug - Listar PG_
         run: env | grep PG_
