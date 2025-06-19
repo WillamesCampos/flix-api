@@ -20,11 +20,10 @@ jobs:
       - name: Checkout do código
         uses: actions/checkout@v4
 
-      - name: Generate .env File
-        run: |
-          echo "PG_NAME=${{ secrets.PG_NAME }}" >> .env
-          echo "PG_PASSWORD=${{ secrets.PG_PASSWORD }}" >> .env
-          cat .env
+      # - name: Generate .env File
+      #   run: |
+      #     echo "PG_NAME=${{ secrets.PG_NAME }}" >> .env
+      #     echo "PG_PASSWORD=${{ secrets.PG_PASSWORD }}" >> .env
 
       - name: Build e sobe containers
         run: |
@@ -36,7 +35,6 @@ jobs:
           echo "------"
           docker compose config
           echo "-------"
-          docker logs flix-api-flix_db-1
 
       - name: Verificar estado do Projeto
         run: |
