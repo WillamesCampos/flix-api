@@ -1,0 +1,39 @@
+# .github/workflows/ci-compose.yml
+name: CI com Docker Compose
+
+on:
+  [push]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      PG_NAME: ${{ secrets.PG_NAME }}
+      PG_PASSWORD: ${{ secrets.PG_PASSWORD }}
+      PG_USER: ${{ secrets.PG_USER }}
+      PG_HOST: ${{ secrets.PG_HOST }}
+      PG_PORT: ${{ secrets.PG_PORT }}
+      DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Build e sobe containers
+        run: |
+          docker compose up -d --build
+
+      - name: Esperar banco ficar pronto
+        run: |
+          until docker compose exec flix_db pg_isready -U postgres; do
+            echo "Aguardando Postgres…"
+            sleep 1
+          done
+
+      - name: Rodar migrações
+        run: docker compose exec flix_web python manage.py migrate --no-input
+
+      - name: Rodar testes
+        run: docker compose exec flix_web python manage.py test --verbosity=2
+
+      - name: Derrubar containers
+        run: docker compose down -v
