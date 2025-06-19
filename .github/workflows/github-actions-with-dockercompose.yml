@@ -27,7 +27,7 @@ jobs:
         run: |
           docker ps -a
           echo "------"
-          docker-compose config
+          docker compose config
           echo "-------"
           docker logs flix-api-flix_db-1
 
