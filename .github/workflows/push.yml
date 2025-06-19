@@ -32,7 +32,7 @@ jobs:
           docker compose logs flix_web
 
       - name: Install Requirements Dev
-        run: pip install -r requirements_dev.txt
+        run: docker compose exec flix_web pip install -r requirements_dev.txt
 
       - name: Lint check
         run: |
