@@ -8,18 +8,21 @@ jobs:
     runs-on: ubuntu-latest
     environment: FLIX_API_DEVELOPMENT
 
+    env:
+      POSTGRES_DB: ${{ secrets.PG_NAME }}
+      POSTGRES_USER: ${{ secrets.PG_USER }}
+      POSTGRES_PASSWORD: ${{ secrets.PG_PASSWORD }}
+      POSTGRES_HOST: ${{ secrets.PG_HOST }}
+      POSTGRES_PORT: ${{ secrets.PG_PORT }}
+      DJANGO_SECRET_KEY: ${{secrets.DJANGO_SECRET_KEY}}
+
     steps:
       - name: Code Checkout
         uses: actions/checkout@v4
 
       - name: .env configuration with secrets
         run: |
-          echo "DJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}" >> .env
-          echo "POSTGRES_DB=${{ secrets.POSTGRES_DB }}" >> .env
-          echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" >> .env
-          echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> .env
-          echo "PG_PORT=${{ secrets.PG_PORT }}" >> .env
-          echo "PG_HOST=${{ secrets.PG_HOST }}" >> .env
+          env | grep POSTGRES_
 
       - name: Build and Start containers with Makefile
         run: |
