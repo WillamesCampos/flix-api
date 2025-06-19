@@ -66,7 +66,7 @@ jobs:
         run: |
           docker container stop flix_web || true
           docker container stop flix_db || true
-          docker container prune --y
+          docker container prune -f
 
 
 
