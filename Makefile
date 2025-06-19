@@ -71,5 +71,5 @@ requirements_dev:
 	sed -i 's/ *;.*//' requirements_dev.txt
 # Linter
 lint:
-	docker-compose exec -T flix_web flake8 .
+	docker compose exec -T flix_web flake8 .
 
