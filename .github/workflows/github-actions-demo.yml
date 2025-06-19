@@ -23,9 +23,6 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Debug - Listar ENV
-        run: env
-
       - name: Upgrade PIP
         run: pip install --upgrade pip
 
@@ -41,7 +38,7 @@ jobs:
           --network=flix_network \
           -d postgres
 
-      - name: Create Web Service
+      - name: Build Web Service
         run: docker build --tag flix_web:0.1 .
 
       - name: Start Web Service
@@ -55,9 +52,14 @@ jobs:
           -e PG_PORT=$PG_PORT \
           -e DJANGO_SECRET_KEY=$DJANGO_SECRET_KEY \
           -p 8000:8000 \
-          flix_web:0.1
+          -d flix_web:0.1
 
       - name: Check Web Service
         run: |
           docker exec flix_web python manage.py check
+
+      - name: Run Django Tests
+        run: |
+          docker exec flix_web python manage.py test --verbosity=2
+
 
