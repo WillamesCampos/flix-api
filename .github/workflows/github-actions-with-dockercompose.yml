@@ -25,6 +25,8 @@ jobs:
       - name: Verificar estado dos serviços
         run: |
           docker ps -a
+          echo "------"
+          docker logs flix_db
 
       - name: Verificar estado do Projeto
         run: |
