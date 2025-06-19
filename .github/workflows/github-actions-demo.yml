@@ -29,12 +29,6 @@ jobs:
       - name: Upgrade PIP
         run: pip install --upgrade pip
 
-      - name: Install Project Dependencies
-        run: pip install -r requirements.txt
-
-      - name: Install Development Dependencies
-        run: pip install -r requirements_dev.txt
-
       - name: Create Container network
         run: docker network create flix_network
 
@@ -56,4 +50,8 @@ jobs:
           --network=flix_network \
           -p 8000:8000 \
           flix_web:0.1
+
+      - name: Check Web Service
+        run: |
+          docker exec flix_web python manage.py check
 
