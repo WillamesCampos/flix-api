@@ -23,15 +23,8 @@ jobs:
         run: |
           docker compose up -d --build
 
-      - name: Verificar estado dos serviços
-        run: |
-          docker ps -a
-          echo "------"
-          docker compose config
-          echo "-------"
-
       - name: Verificar estado do Projeto
-        run: docker logs flix-api-flix_web-1
+        run: docker ps -a
 
       - name: Rodar migrações
         run: docker compose exec flix-api-flix_web-1 python manage.py migrate --no-input
