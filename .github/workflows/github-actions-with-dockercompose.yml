@@ -13,6 +13,7 @@ jobs:
       PG_HOST: ${{ secrets.PG_HOST }}
       PG_PORT: ${{ secrets.PG_PORT }}
       DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
+      POSTGRES_PASSWORD: ${{ secrets.PG_PASSWORD }}
 
     steps:
       - name: Checkout do código
