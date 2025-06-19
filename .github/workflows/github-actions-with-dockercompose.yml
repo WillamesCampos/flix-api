@@ -37,8 +37,7 @@ jobs:
           echo "-------"
 
       - name: Verificar estado do Projeto
-        run: |
-          docker exec flix-api-flix_web-1 python manage.py check
+        run: docker exec flix-api-flix_web-1 python manage.py check
 
       - name: Rodar migrações
         run: docker compose exec flix-api-flix_web-1 python manage.py migrate --no-input
