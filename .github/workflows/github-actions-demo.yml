@@ -22,6 +22,9 @@ jobs:
           echo "PG_HOST=${{ secrets.PG_HOST }}" >> $GITHUB_ENV
           echo "PG_PORT=${{ secrets.PG_PORT }}" >> $GITHUB_ENV
 
+      - name: Debug - Listar PG_
+        run: env | grep PG_
+
       - name: Upgrade PIP
         run: pip install --upgrade pip
 
