@@ -5,6 +5,7 @@ on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment: FLIX_API_DEVELOPMENT
     env:
       PG_NAME: ${{ secrets.PG_NAME }}
       PG_USER: ${{ secrets.PG_USER }}
@@ -42,12 +43,14 @@ jobs:
           -e POSTGRES_DB=${PG_NAME} \
           -e POSTGRES_PASSWORD=${PG_PASSWORD} \
           -p ${PG_PORT}:${PG_PORT} \
-          -v "/home/willames/TI/Cursos/Django Master/flix-api/.pg_flix:/var/lib/postgresql/data" \
           --network=flix_network \
           -d postgres
 
+      - name: Create Web Service
+        run: docker build --tag flix_web:0.1 .
+
       - name: Start Web Service
-        run: docker run  --name flix_web \
+        run: docker run --name flix_web \
             --network=flix_network \
             -p 8000:8000 \
             flix_web:0.1
