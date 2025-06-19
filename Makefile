@@ -1,6 +1,7 @@
 # Docker
 network:
 	docker network create flix_network
+
 db:
 	docker run --name flix_db \
 	-e POSTGRES_DB=${PG_NAME} \
@@ -25,20 +26,40 @@ destroyweb:
 	docker stop flix_web
 	docker rm flix_web
 
-compose:
-	docker-compose up --build
+build:
+	docker compose build
+
+up:
+	docker compose up -d
+
+down:
+	docker-compose down
+
+logs:
+	docker-compose logs -f
 
 projectbuild:
 	docker-compose up --build
 
 # Django
+test:
+	docker-compose exec -T flix_web python manage.py test
+
+migrate:
+	docker-compose exec -T flix_web python manage.py migrate
+
+makemigrations:
+	docker-compose exec -T flix_web python manage.py makemigrations
 run:
-	./manage.py runserver
+	docker-compse exec -T
 
 tests:
 	./manage.py test
-# Poetry
 
+lint:
+	docker-compose exec -T flix_web flake8 .
+
+# Poetry
 export_plugin:
 	poetry self add poetry-plugin-export
 
@@ -70,7 +91,6 @@ requirements_dev:
 	sed -i 's/ *;.*//' requirements_dev.txt
 
 # Linter
-
 lint:
-	flake8
+	docker-compose exec -T flix_web flake8 .
 
