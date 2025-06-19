@@ -26,7 +26,7 @@ jobs:
         run: |
           docker ps -a
           echo "------"
-          docker logs flix_db
+          docker logs flix-api-flix_db-1
 
       - name: Verificar estado do Projeto
         run: |
