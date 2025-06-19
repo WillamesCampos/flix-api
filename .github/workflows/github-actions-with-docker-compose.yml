@@ -22,13 +22,16 @@ jobs:
         run: |
           docker compose up -d --build
 
-      - name: Rodar migrações
-        run: docker compose exec flix_web python manage.py migrate --no-input
+      - name: Verificar estado dos serviços
+        run: |
+          docker ps -a
 
       - name: Verificar estado do Projeto
         run: |
           docker exec flix_web python manage.py check
 
+      - name: Rodar migrações
+        run: docker compose exec flix_web python manage.py migrate --no-input
 
       - name: Rodar testes
         run: docker compose exec flix_web python manage.py test --verbosity=2
