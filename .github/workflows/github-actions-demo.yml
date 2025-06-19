@@ -62,4 +62,11 @@ jobs:
         run: |
           docker exec flix_web python manage.py test --verbosity=2
 
+      - name: Tear down
+        run: |
+          docker container stop flix_web || true
+          docker container stop flix_db || true
+          docker container prune --y
+
+
 
