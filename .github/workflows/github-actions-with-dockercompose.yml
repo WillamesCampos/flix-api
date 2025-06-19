@@ -24,7 +24,9 @@ jobs:
           docker compose up -d --build
 
       - name: Verificar estado do Projeto
-        run: docker exec flix_web python manage.py check
+        run: |
+          docker exec -T flix_web python manage.py check
+          docker logs flix_web
 
       - name: Rodar migrações
         run: docker compose exec flix_web python manage.py migrate --no-input
