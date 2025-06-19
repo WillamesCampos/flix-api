@@ -22,8 +22,8 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Debug - Listar PG_
-        run: env | grep PG_
+      - name: Debug - Listar ENV
+        run: env
 
       - name: Upgrade PIP
         run: pip install --upgrade pip
@@ -34,8 +34,21 @@ jobs:
       - name: Install Development Dependencies
         run: pip install -r requirements_dev.txt
 
-      - name: Start Services
-        run: |
-          make network
-          make db
-          make web
+      - name: Create Container network
+        run: docker network create flix_network
+
+      - name: Start DB Service
+        run: docker run --name ${PG_NAME} \
+          -e POSTGRES_DB=${PG_NAME} \
+          -e POSTGRES_PASSWORD=${PG_PASSWORD} \
+          -p ${PG_PORT}:${PG_PORT} \
+          -v "/home/willames/TI/Cursos/Django Master/flix-api/.pg_flix:/var/lib/postgresql/data" \
+          --network=flix_network \
+          -d postgres
+
+      - name: Start Web Service
+        run: docker run  --name flix_web \
+            --network=flix_network \
+            -p 8000:8000 \
+            flix_web:0.1
+
