@@ -3,19 +3,18 @@ run-name: ${{ github.actor }} is learning GitHub Actions
 on: [push]
 
 jobs:
-
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-      - name: Set up python
-        uses: |
-          actions/checkout@v4
-          actions/setup-python@v5
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: Set up enviroment variables
+      - name: Set up environment variables
         run: |
           echo "PG_NAME=${{ secrets.PG_NAME }}" >> $GITHUB_ENV
           echo "PG_USER=${{ secrets.PG_USER }}" >> $GITHUB_ENV
@@ -27,7 +26,7 @@ jobs:
         run: pip install --upgrade pip
 
       - name: Install Project Dependencies
-        run: pip install -r requirements.txt]
+        run: pip install -r requirements.txt
 
       - name: Install Development Dependencies
         run: pip install -r requirements_dev.txt
@@ -37,4 +36,3 @@ jobs:
           make network
           make db
           make web
-
