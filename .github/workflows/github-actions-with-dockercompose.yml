@@ -25,6 +25,7 @@ jobs:
 
       - name: Verificar estado do Projeto
         run: |
+          env | grep PG_
           docker exec flix_web python manage.py check
           docker logs flix_web
 
