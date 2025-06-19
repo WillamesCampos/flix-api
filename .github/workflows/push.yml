@@ -29,6 +29,11 @@ jobs:
           make build
           make up
 
+      - name: Check Services
+        run: |
+          docker ps -a
+          docker compose logs
+
       - name: Test Running
         run: make test
 
