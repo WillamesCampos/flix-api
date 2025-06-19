@@ -19,6 +19,11 @@ jobs:
       - name: Checkout do código
         uses: actions/checkout@v4
 
+      - name: Generate .env File
+        run: |
+          echo "PG_NAME=${{ secrets.PG_NAME }}" >> .env
+          echo "PG_PASSWORD=${{ secrets.PG_PASSWORD }}" >> .env
+
       - name: Build e sobe containers
         run: |
           docker compose up -d --build
