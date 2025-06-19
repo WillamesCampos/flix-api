@@ -32,7 +32,7 @@ jobs:
       - name: Check Services
         run: |
           docker ps -a
-          docker compose logs
+          docker compose logs flix_web
 
       - name: Test Running
         run: make test
