@@ -22,15 +22,13 @@ jobs:
         run: |
           docker compose up -d --build
 
-      - name: Esperar banco ficar pronto
-        run: |
-          until docker compose exec flix_db pg_isready -U postgres; do
-            echo "Aguardando Postgres…"
-            sleep 1
-          done
-
       - name: Rodar migrações
         run: docker compose exec flix_web python manage.py migrate --no-input
+
+      - name: Verificar estado do Projeto
+        run: |
+          docker exec flix_web python manage.py check
+
 
       - name: Rodar testes
         run: docker compose exec flix_web python manage.py test --verbosity=2
