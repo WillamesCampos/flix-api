@@ -21,8 +21,12 @@ web:
 	-p 8000:8000 \
 	flix_web:0.1
 
-project:
-	docker-compose up
+destroyweb:
+	docker stop flix_web
+	docker rm flix_web
+
+compose:
+	docker-compose up --build
 
 projectbuild:
 	docker-compose up --build
@@ -31,10 +35,21 @@ projectbuild:
 run:
 	./manage.py runserver
 
+tests:
+	./manage.py test
 # Poetry
 
 export_plugin:
 	poetry self add poetry-plugin-export
+
+poetry-install:
+	pip install poetry
+
+poetry-requirements:
+	poetry add $(cat requirements.txt)
+
+poetry-dev-requirements:
+	poetry add --group-dev $(cat requirements_dev.txt)
 
 requirements:
 	poetry export \

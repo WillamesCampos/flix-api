@@ -1,10 +1,12 @@
-name: CI com Docker Compose
-
+name: Quality Assurance - Makefile
+run-name: ${{ github.actor }} is learning GitHub Actions
 on:
   [push]
 jobs:
-  test:
+  quality-assurance:
+    name: Quality Assurance
     runs-on: ubuntu-latest
+    container: python:3.11-alpine
     environment: FLIX_API_DEVELOPMENT
     env:
       PG_NAME: ${{ secrets.PG_NAME }}
@@ -14,18 +16,36 @@ jobs:
       PG_PORT: ${{ secrets.PG_PORT }}
       DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
 
+    services:
+      db:
+        image: postgres:latest
+        env:
+          POSTGRES_DB: $PG_NAME
+          POSTGRES_PASSWORD: $PG_PASSWORD
+          POSTGRES_USER: $PG_USER
+
     steps:
-      - name: Checkout do código
+      - name: Checkout Code in Repository
         uses: actions/checkout@v4
 
-      - name: Build e sobe containers
-        run: |
-          docker compose up -d --build
-      - name: Verificar estado do Projeto
-        run: docker logs flix_web
+      - name: Upgrade PIP
+        run: pip install --upgrade pip
 
-      - name: Rodar testes
-        run: docker compose exec flix_web python manage.py test --verbosity=2
+      - name: Install Poetry
+        run: pip install poetry
 
-      - name: Derrubar containers
-        run: docker compose down -v
+      - name: Init Poetry
+        run: poetry init --no-env
+
+      - name: Install Requirements
+        run: make poetry-equirements
+
+      - name: Install Dev Requirements
+        run: make poetry-dev-requirements
+
+      - name: Lint
+        run: make lint
+
+      - name: Tests
+        run: make test
+

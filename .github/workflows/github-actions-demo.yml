@@ -1,6 +1,6 @@
-name: learn-github-actions-with-django
+name: Quality Assurance - Docker Commands
 run-name: ${{ github.actor }} is learning GitHub Actions
-on: [pull_request]
+on: [pull_request, workflow_call]
 
 jobs:
   build:
