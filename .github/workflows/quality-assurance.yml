@@ -23,8 +23,8 @@ jobs:
 
       - name: Build and Start containers with Makefile
         run: |
-          make build
-          make up
+          make -f Makefile.dev build
+          make -f Makefile.dev up
 
       - name: Check Services
         run: |
