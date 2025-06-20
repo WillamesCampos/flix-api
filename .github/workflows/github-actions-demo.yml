@@ -1,6 +1,6 @@
 name: Quality Assurance - Docker Commands
 run-name: ${{ github.actor }} is learning GitHub Actions
-on: [pull_request, workflow_call]
+on: [workflow_call]
 
 jobs:
   build:
