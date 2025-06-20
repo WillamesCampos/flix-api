@@ -35,7 +35,7 @@ jobs:
         run: make -f Makefile.dev lint
 
       - name: Testes com Django
-        run: docker compose run --rm flix_web python manage.py test
+        run: make -f Makefile.dev test
 
 
       - name: Tear down
