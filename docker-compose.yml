@@ -2,7 +2,9 @@ services:
 
   flix_web:
     container_name: flix_web
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
     restart: always
     ports:
       - 8000:8000

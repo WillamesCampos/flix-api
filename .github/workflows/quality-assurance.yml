@@ -31,15 +31,11 @@ jobs:
           docker ps -a
           docker compose logs flix_web
 
-      - name: Instalar dependências de desenvolvimento
-        run:
-          docker compose exec flix_web pip install -r requirements_dev.txt
-
-      - name: Flake8 Install and PEP8 Analysis
-        run: make lint
+      - name: PEP8 Analysis
+        run: make -f Makefile.dev lint
 
       - name: Test Running
-        run: make test
+        run: make -f Makefile.dev test
 
       - name: Tear down
         if: always()
