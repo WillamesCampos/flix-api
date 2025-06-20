@@ -34,8 +34,9 @@ jobs:
       - name: PEP8 Analysis
         run: make -f Makefile.dev lint
 
-      - name: Test Running
-        run: make -f Makefile.dev test
+      - name: Testes com Django
+        run: docker compose run --rm flix_web python manage.py test
+
 
       - name: Tear down
         if: always()
