@@ -32,8 +32,7 @@ jobs:
           docker compose logs flix_web
 
       - name: Instalar dependências de desenvolvimento
-        run: |
-          docker compose exec flix_web pip install --upgrade pip
+        run:
           docker compose exec flix_web pip install -r requirements_dev.txt
 
       - name: Flake8 Install and PEP8 Analysis
