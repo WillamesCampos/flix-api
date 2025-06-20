@@ -2,6 +2,7 @@
 .vscode
 .gitignore
 .git
+.github
 
 README.md
 
@@ -12,9 +13,7 @@ README.md
 poetry.lock
 pyproject.toml
 
-requirements_dev.txt
 tempfiles
 
-Makefile
 
 

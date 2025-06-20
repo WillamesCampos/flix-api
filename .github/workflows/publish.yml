@@ -1,0 +1,11 @@
+name: CI Test and Publish Project
+on:
+  push:
+    tags:
+      - 'v*-staging'
+jobs:
+  quality-assurance:
+    uses: ./.github/workflows/quality-assurance.yml
+  docker-image-release:
+    needs: quality-assurance
+    uses: ./.github/workflows/docker-image-release.yml

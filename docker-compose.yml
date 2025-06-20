@@ -1,7 +1,10 @@
 services:
 
   flix_web:
-    build: .
+    container_name: flix_web
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
     restart: always
     ports:
       - 8000:8000
@@ -9,14 +12,15 @@ services:
       - flix_db
 
   flix_db:
+    container_name: flix_db
     image: postgres:latest
     ports:
       - 5432:5432
     volumes:
       - .pg_flix:/var/lib/postgresql/data
     environment:
-      - POSTGRES_PASSWORD=${PG_PASSWORD}
-      - POSTGRES_DB=${PG_NAME}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
 
 volumes:
   .pg_flix:
