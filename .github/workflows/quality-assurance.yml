@@ -1,7 +1,10 @@
 name: Quality Assurance - Makefile and Docker Compose in Push
 run-name: Pushing branch ${{ github.branch }} into ${{ github.repository}} by ${{ github.actor }}
 on:
-  [push, workflow_call]
+  pull_request:
+    branches:
+      - main
+  workflow_call:
 jobs:
   quality-assurance:
     name: Quality Assurance
