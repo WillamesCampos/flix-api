@@ -34,7 +34,7 @@ jobs:
       - name: PEP8 Analysis
         run: make -f Makefile.dev lint
 
-      - name: Testes com Django
+      - name: Django Tests
         run: make -f Makefile.dev test
 
 
