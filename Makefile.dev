@@ -28,7 +28,7 @@ run_dev:
 
 # Django
 test:
-	docker compose exec -T flix_web python manage.py test
+	docker compose run --rm flix_web python manage.py test
 
 # Poetry
 export_plugin:
