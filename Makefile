@@ -1,5 +1,5 @@
 # Docker Parameters
-IMAGE_NAME ?= willamescampos/flix_api
+IMAGE_NAME ?= willamesdev/flix_api
 TAG ?= latest
 
 # =============================
