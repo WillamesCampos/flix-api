@@ -24,6 +24,14 @@ jobs:
           --health-timeout 5s
           --health-retries 10
 
+    env:
+      DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
+      POSTGRES_DB: ${{ secrets.PG_NAME }}
+      POSTGRES_USER: ${{ secrets.PG_USER }}
+      POSTGRES_PASSWORD: ${{ secrets.PG_PASSWORD }}
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
