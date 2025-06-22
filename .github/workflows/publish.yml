@@ -4,8 +4,40 @@ on:
     tags:
       - 'v*-staging'
 jobs:
-  quality-assurance:
-    uses: ./.github/workflows/quality-assurance.yml
+  quality-assurance-before-push:
+    name: Quality Assurance Before Push into DockerHub
+    runs-on: ubuntu-latest
+
+    services:
+      db:
+        image: postgres:latest
+        env:
+          POSTGRES_DB: ${{ secrets.PG_NAME }}
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: ${{ secrets.PG_PASSWORD }}
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install -r requirements_dev.txt
+      - name: Lint
+        run: flake8 . --count
+      - name: Tests
+        run: python manage.py test
   docker-image-release:
-    needs: quality-assurance
+    needs: quality-assurance-before-push
     uses: ./.github/workflows/docker-image-release.yml
