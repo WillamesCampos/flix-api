@@ -50,3 +50,6 @@ jobs:
   docker-image-release:
     needs: quality-assurance-before-push
     uses: ./.github/workflows/docker-image-release.yml
+    with:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
