@@ -2,30 +2,33 @@
 IMAGE_NAME ?= willamescampos/flix_api
 TAG ?= latest
 
-# Docker
+# =============================
+# Docker Management
+# =============================
 destroydb:
 	docker stop flix_db
 	docker rm flix_db
-
 destroyweb:
 	docker stop flix_web
 	docker rm flix_web
-
-build_web:
-	docker build -t $(IMAGE_NAME):$(TAG) -t $(IMAGE_NAME):latest .
 up:
 	docker compose up -d
+up_build:
+	docker-compose up --build
 down:
 	docker compose down
 logs:
 	docker compose logs -f
+build:
+	docker build -t $(IMAGE_NAME):$(TAG) -t $(IMAGE_NAME):latest .
+push:
+	docker push $(IMAGE_NAME):$(TAG)
+	docker push $(IMAGE_NAME):latest
 
-projectbuild:
-	docker-compose up --build
 
-# Django
-test:
-	docker compose exec -T flix_web python manage.py test
+# =============================
+# Django Management
+# =============================
 migrate:
 	docker compose exec -T flix_web python manage.py migrate
 makemigrations:

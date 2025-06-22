@@ -23,5 +23,10 @@ jobs:
           echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
 
       - name: Build Docker Image
-        run: make build TAG=${{ steps.tag.outputs.tag }}
+        run: |
+          make build TAG=${{ steps.tag.outputs.tag }}
+
+      - name: Push Docker Image
+        run: |
+          make push TAG=${{ steps.tag.outputs.tag }}
 
