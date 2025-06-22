@@ -49,7 +49,30 @@ jobs:
         run: python manage.py test
   docker-image-release:
     needs: quality-assurance-before-push
-    uses: ./.github/workflows/docker-image-release.yml
-    with:
-      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-      DOCKERHUB_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+    name: Docker Image Release
+    runs-on: ubuntu-latest
+    environment: DOCKERHUB_CREDENTIALS
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: DockerHub Login
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Get Tag Name
+        id: tag
+        run: |
+          echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      - name: Build Docker Image
+        run: |
+          make build TAG=${{ steps.tag.outputs.tag }}
+
+      - name: Push Docker Image
+        run: |
+          make push TAG=${{ steps.tag.outputs.tag }}
