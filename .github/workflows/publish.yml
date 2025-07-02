@@ -46,7 +46,7 @@ jobs:
       - name: Lint
         run: flake8 . --count
       - name: Tests
-        run: python -m pytest -vvv --cov=coverage
+        run: python -m pytest -vvv --cov=. --cov-report=term-missing
   docker-image-release:
     needs: quality-assurance-before-push
 
