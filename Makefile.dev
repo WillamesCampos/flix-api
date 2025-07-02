@@ -3,9 +3,9 @@ network:
 	docker network create flix_network
 db:
 	docker run --name flix_db \
-	-e POSTGRES_DB=${PG_NAME} \
-	-e POSTGRES_PASSWORD=${PG_PASSWORD} \
-	-p ${PG_PORT}:${PG_PORT} \
+	-e POSTGRES_DB=${POSTGRES_DB} \
+	-e POSTGRES_PASSWORD=${POSTGRES_PASSWORD} \
+	-p ${POSTGRES_PORT}:${POSTGRES_PORT} \
 	-v "/home/willames/TI/Cursos/Django Master/flix-api/.pg_flix:/var/lib/postgresql/data" \
 	--network=flix_network \
 	-d postgres
@@ -28,7 +28,7 @@ run_dev:
 
 # Django
 test:
-	docker compose run --rm flix_web python manage.py test -v2
+	python -m pytest -vvv
 
 # Poetry
 export_plugin:
@@ -58,4 +58,4 @@ requirements_dev:
 
 # Linter
 lint:
-	docker compose run --rm flix_web flake8 . --count
+	flake8 . --count

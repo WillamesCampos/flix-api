@@ -32,6 +32,7 @@ jobs:
       POSTGRES_PASSWORD: ${{ secrets.PG_PASSWORD }}
       POSTGRES_HOST: localhost
       POSTGRES_PORT: 5432
+      DJANGO_SETTINGS_MODULE: app.test_settings
 
     steps:
       - name: Code Checkout
@@ -52,5 +53,5 @@ jobs:
         run: flake8 . --count
 
       - name: Django Tests
-        run: python manage.py test --verbosity=2
+        run: python -m pytest -vvv --cov=. --cov-report=term-missing
 

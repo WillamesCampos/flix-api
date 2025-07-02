@@ -2,6 +2,8 @@
 */*/__pycache__
 */*/*/__pycache__
 
+.pytest_cache
+
 .env
 .vscode
 
@@ -13,4 +15,7 @@ db.sqlite3
 notes
 .vscode
 
+.coverage
+htmlcov
 tempfiles
+pytest.ini
