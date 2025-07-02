@@ -83,5 +83,3 @@ class BaseAPITest:
     def revoke_permissions(self, group, user):
         user.groups.remove(group)
         user.refresh_from_db()
-
-

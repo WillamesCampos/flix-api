@@ -28,7 +28,7 @@ run_dev:
 
 # Django
 test:
-	docker compose run --rm flix_web python -m pytest -vvv
+	python -m pytest -vvv
 
 # Poetry
 export_plugin:
@@ -58,4 +58,4 @@ requirements_dev:
 
 # Linter
 lint:
-	docker compose run --rm flix_web flake8 . --count
+	flake8 . --count

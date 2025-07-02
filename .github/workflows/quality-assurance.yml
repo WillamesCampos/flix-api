@@ -52,5 +52,5 @@ jobs:
         run: flake8 . --count
 
       - name: Django Tests
-        run: python manage.py test --verbosity=2
+        run: python -m pytest -vvv --cov=coverage
 

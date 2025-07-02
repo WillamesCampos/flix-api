@@ -19,6 +19,7 @@ def actor_data():
         'nationality': faker_gen.random_choices(elements=[choice[0] for choice in NATIONALITY_CHOICES], length=1)
     }
 
+
 @pytest.fixture
 def existing_actor():
     return ActorFactory()

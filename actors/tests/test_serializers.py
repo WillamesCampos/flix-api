@@ -75,5 +75,3 @@ class TestActorSerializer:
         assert serializer.data['name'] == obj.name
         assert serializer.data['birthday'] == obj.birthday.isoformat()
         assert serializer.data['nationality'] == obj.nationality
-
-
