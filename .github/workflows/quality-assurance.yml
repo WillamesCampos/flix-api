@@ -52,5 +52,5 @@ jobs:
         run: flake8 . --count
 
       - name: Django Tests
-        run: python -m pytest -vvv --cov=coverage
+        run: python -m pytest -vvv --cov=. --cov-report=term-missing
 
