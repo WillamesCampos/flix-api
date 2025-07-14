@@ -1,8 +1,11 @@
 .pg_flix
+.postgres_data
+
 .vscode
 .gitignore
 .git
 .github
+
 
 README.md
 

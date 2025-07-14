@@ -12,7 +12,7 @@ destroyweb:
 	docker stop flix_web
 	docker rm flix_web
 up:
-	docker compose up -d
+	docker compose up
 up_build:
 	docker-compose up --build
 down:

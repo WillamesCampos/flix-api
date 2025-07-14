@@ -6,7 +6,7 @@ db:
 	-e POSTGRES_DB=${POSTGRES_DB} \
 	-e POSTGRES_PASSWORD=${POSTGRES_PASSWORD} \
 	-p ${POSTGRES_PORT}:${POSTGRES_PORT} \
-	-v "/home/willames/TI/Cursos/Django Master/flix-api/.pg_flix:/var/lib/postgresql/data" \
+	-v "/home/will/IT/Portfolio/flix-api/.postgres_data:/var/lib/postgresql/data" \
 	--network=flix_network \
 	-d postgres
 web:
