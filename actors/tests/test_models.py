@@ -10,7 +10,7 @@ from actors.tests.factories import ActorFactory
 
 
 @pytest.mark.django_db
-class TestActor:
+class TestModelActor:
 
     def __list_nationalities(self):
         return [choice[0] for choice in NATIONALITY_CHOICES]
