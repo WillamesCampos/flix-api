@@ -1,3 +1,0 @@
-[flake8]
-exclude = */migrations/*
-ignore = E501, F401, F403

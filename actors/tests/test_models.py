@@ -1,17 +1,14 @@
-import pytest
 import datetime
 
+import pytest
 from django.db.utils import IntegrityError
 
-from actors.models import Actor
-from actors.models import NATIONALITY_CHOICES
-
+from actors.models import NATIONALITY_CHOICES, Actor
 from actors.tests.factories import ActorFactory
 
 
 @pytest.mark.django_db
 class TestModelActor:
-
     def __list_nationalities(self):
         return [choice[0] for choice in NATIONALITY_CHOICES]
 
@@ -37,7 +34,6 @@ class TestModelActor:
         assert not obj.birthday
 
     def test_create_actor_without_nationality(self):
-
         obj = ActorFactory(nationality=None)
 
         assert Actor.objects.filter(name=obj.name).exists()

@@ -29,6 +29,7 @@ run_dev:
 # Django
 test:
 	python -m pytest -vvv
+	coverage html
 
 # Poetry
 export_plugin:
@@ -58,4 +59,12 @@ requirements_dev:
 
 # Linter
 lint:
-	flake8 . --count
+	ruff check
+fix:
+	ruff check --fix
+format:
+	ruff format
+coverage:
+	coverage report
+coverage-html:
+	coverage html

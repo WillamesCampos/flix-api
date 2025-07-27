@@ -1,13 +1,12 @@
 import pytest
-
 from django.db import DataError, IntegrityError
 
-from genres.tests.factories import GenreFactory
 from genres.models import Genre
+from genres.tests.factories import GenreFactory
+
 
 @pytest.mark.django_db
 class TestModelGenre:
-
     def test_create_genre(self):
         genre = GenreFactory()
         assert isinstance(genre, Genre)

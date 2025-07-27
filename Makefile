@@ -36,4 +36,18 @@ makemigrations:
 run:
 	docker compose exec -T flix_web python manage.py runserver
 
-
+# ======================================
+# Testing and Development
+# ======================================
+test:
+	make -f Makefile.dev test
+db_test:
+	make -f Makefile.dev db
+lint:
+	make -f Makefile.dev lint
+fix:
+	make -f Makefile.dev fix
+format:
+	make -f Makefile.dev format
+coverage:
+	make -f Makefile.dev coverage

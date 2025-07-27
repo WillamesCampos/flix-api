@@ -1,12 +1,9 @@
-from django.db.models import Avg
-from django.db.models import Count
-from django.db.models import QuerySet
+from django.db.models import Avg, Count, QuerySet
 
 from reviews.models import Review
 
 
 class MovieStatsService:
-
     def __init__(self, queryset: QuerySet) -> None:
         self.queryset = queryset
         self.reviews = Review.objects.count()
@@ -19,9 +16,7 @@ class MovieStatsService:
 
     def __get_average_stars(self) -> float:
         average_stars = round(
-            Review.objects.aggregate(
-                avg_stars=Avg('stars')
-            )['avg_stars'], 1
+            Review.objects.aggregate(avg_stars=Avg('stars'))['avg_stars'], 1
         )
 
         return average_stars if average_stars else 0
@@ -31,7 +26,7 @@ class MovieStatsService:
             'total_movies': self.__get_total_movies(),
             'movies_by_genre': self.__get_movies_by_genre(),
             'total_reviews': self.reviews,
-            'average_stars': self.__get_average_stars()
+            'average_stars': self.__get_average_stars(),
         }
 
         return data
