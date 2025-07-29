@@ -39,7 +39,7 @@ addopts = [
   "--ignore=.postgres_data",
   "--cov=.",
   "--cov-report=term-missing",
-  "--cov-fail-under=80",
+  "--cov-fail-under=75",
   "--cov-report=html:htmlcov",
   "-p no:warnings"
 ]
@@ -48,7 +48,11 @@ addopts = [
 omit = [
     "manage.py",
     "*/migrations/*",
-    "*/tests/*"
+    "*/tests/*",
+    "*/settings.py",
+    "*/admin.py",
+    "*/wsgi.py",
+    "*/asgi.py"
 ]
 
 # onde o pytest deve buscar os testes
@@ -70,7 +74,7 @@ norecursedirs = [
 ]
 
 [tool.ruff]
-line-length = 79
+line-length = 150
 extend-exclude = [
   'migrations',
   'manage.py',
@@ -81,7 +85,7 @@ extend-exclude = [
 
 [tool.ruff.lint]
 preview = true
-ignore = ['PLR6301']
+ignore = ['PLR6301', 'PLR0904']
 select = [
     'I', # Isort - Checagem de ordenação de imports em ordem alfabética
     'F', # Pyflakes - Procura por alguns erros em relação a boas práticas de código

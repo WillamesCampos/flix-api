@@ -46,17 +46,13 @@ class BaseAPITest:
 
         response = self.client.post(url, data)
 
-        assert response.status_code == status.HTTP_200_OK, (
-            f'It has been not possible to create JWT token: {response.data}'
-        )
+        assert response.status_code == status.HTTP_200_OK, f'It has been not possible to create JWT token: {response.data}'
 
         access = response.data['access']
         self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {access}')
 
     def __create_permission_group(self, name='TestAdminGroup'):
-        self.__user_permission_group, _ = Group.objects.get_or_create(
-            name=name
-        )
+        self.__user_permission_group, _ = Group.objects.get_or_create(name=name)
 
     def give_permissions(self, model):
         self.__create_permission_group()
@@ -64,9 +60,7 @@ class BaseAPITest:
         app_label = model._meta.app_label
         model_name = model._meta.model_name
 
-        permissions = Permission.objects.filter(
-            content_type__app_label=app_label, content_type__model=model_name
-        )
+        permissions = Permission.objects.filter(content_type__app_label=app_label, content_type__model=model_name)
 
         self.__user_permission_group.permissions.add(*permissions)
 

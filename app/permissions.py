@@ -3,9 +3,7 @@ from rest_framework import permissions
 
 class GlobalDefaultPermission(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
-        model_permission_codename = self.__get_model_permission_codename(
-            method=request.method, view=view
-        )
+        model_permission_codename = self.__get_model_permission_codename(method=request.method, view=view)
 
         if not model_permission_codename:
             return False
@@ -13,9 +11,7 @@ class GlobalDefaultPermission(permissions.BasePermission):
         return request.user.has_perm(model_permission_codename)
 
     def has_permission(self, request, view):
-        model_permission_codename = self.__get_model_permission_codename(
-            method=request.method, view=view
-        )
+        model_permission_codename = self.__get_model_permission_codename(method=request.method, view=view)
         if not model_permission_codename:
             return False
         return request.user.has_perm(model_permission_codename)

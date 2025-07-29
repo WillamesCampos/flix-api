@@ -16,15 +16,11 @@ class MovieModelSerializer(serializers.ModelSerializer):
 
     def validate_release_date(self, value):
         if value.year < self.LIMIT_YEAR_OF_BIRTH:
-            raise serializers.ValidationError(
-                'The release date can not be less than 1990'
-            )
+            raise serializers.ValidationError('The release date can not be less than 1990')
 
     def validate_resume(self, value):
         if len(value) > self.LIMIT_RESUME_CHARACTERS:
-            raise serializers.ValidationError(
-                'The resume can not have lenght more than 200 characters'
-            )
+            raise serializers.ValidationError('The resume can not have lenght more than 200 characters')
 
 
 class MovieListDetailSerializer(serializers.ModelSerializer):

@@ -14,9 +14,7 @@ def actor_data():
     return {
         'name': faker_gen.name_male(),
         'birthday': faker_gen.date_of_birth(),
-        'nationality': faker_gen.random_choices(
-            elements=[choice[0] for choice in NATIONALITY_CHOICES], length=1
-        ),
+        'nationality': faker_gen.random_choices(elements=[choice[0] for choice in NATIONALITY_CHOICES], length=1),
     }
 
 
@@ -46,17 +44,13 @@ class TestActorAPI(BaseAPITest):
     def test_list_actors_without_permissions(self):
         url = reverse('actor-create-list')
         response = self.client.get(url)
-        assert response.status_code == status.HTTP_403_FORBIDDEN, (
-            'Esperado 403 para usuário sem permissão de acesso.'
-        )
+        assert response.status_code == status.HTTP_403_FORBIDDEN, 'Esperado 403 para usuário sem permissão de acesso.'
 
     def test_list_actors_user_not_authenticated(self):
         self.client.logout()
         url = reverse('actor-create-list')
         response = self.client.get(url)
-        assert response.status_code == status.HTTP_401_UNAUTHORIZED, (
-            f'Esperado 401 para usuário não autenticado, retornou {response.status_code}'
-        )
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED, f'Esperado 401 para usuário não autenticado, retornou {response.status_code}'
 
     def test_create_actor_success(self, actor_data):
         self.give_permissions(model=Actor)

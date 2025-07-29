@@ -39,9 +39,7 @@ class TestActorSerializer:
         assert not serializer.is_valid()
         assert 'name' in serializer.errors
 
-        assert 'This field may not be blank.' == str(
-            serializer.errors['name'][0]
-        )
+        assert 'This field may not be blank.' == str(serializer.errors['name'][0])
 
     def test_actor_serializer_invalid_data_birthday(self):
         data = {
@@ -54,10 +52,7 @@ class TestActorSerializer:
         assert not serializer.is_valid()
         assert 'birthday' in serializer.errors
 
-        assert (
-            'Date has wrong format. Use one of these formats instead: YYYY-MM-DD.'
-            == str(serializer.errors['birthday'][0])
-        )
+        assert 'Date has wrong format. Use one of these formats instead: YYYY-MM-DD.' == str(serializer.errors['birthday'][0])
 
     def test_actor_serializer_invalid_data_nationality(self):
         data = {
@@ -70,9 +65,7 @@ class TestActorSerializer:
         assert not serializer.is_valid()
         assert 'nationality' in serializer.errors
 
-        assert '"NOT-IN-CHOICES" is not a valid choice.' == str(
-            serializer.errors['nationality'][0]
-        )
+        assert '"NOT-IN-CHOICES" is not a valid choice.' == str(serializer.errors['nationality'][0])
 
     def test_actor_serializer_output(self):
         obj = ActorFactory()
