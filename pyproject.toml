@@ -21,6 +21,83 @@ faker = "^37.4.0"
 pytest = "^8.4.1"
 pytest-django = "^4.11.1"
 pytest-cov = "^6.2.1"
+ruff = "^0.12.5"
+
+[tool.pytest.ini_options]
+# variável de ambiente do Django
+DJANGO_SETTINGS_MODULE = "app.test_settings"
+pythonpath = "."
+# opções de linha de comando
+addopts = [
+  "-ra",
+  "--ignore=.venv",
+  "--ignore=.git",
+  "--ignore=.tox",
+  "--ignore=.idea",
+  "--ignore=.vscode",
+  "--ignore=__pycache__",
+  "--ignore=.postgres_data",
+  "--cov=.",
+  "--cov-report=term-missing",
+  "--cov-fail-under=75",
+  "--cov-report=html:htmlcov",
+  "-p no:warnings"
+]
+
+[tool.coverage.run]
+omit = [
+    "manage.py",
+    "*/migrations/*",
+    "*/tests/*",
+    "*/settings.py",
+    "*/admin.py",
+    "*/wsgi.py",
+    "*/asgi.py"
+]
+
+# onde o pytest deve buscar os testes
+testpaths = ["tests"]
+
+# padrão de nome de arquivo de teste
+python_files = ["test_*.py"]
+
+# diretórios que não devem ser recursados
+norecursedirs = [
+  "migrations",
+  ".venv",
+  ".git",
+  ".tox",
+  ".idea",
+  ".vscode",
+  "__pycache__",
+  ".postgres_data",
+]
+
+[tool.ruff]
+line-length = 150
+extend-exclude = [
+  'migrations',
+  'manage.py',
+  'settings.py',
+  'test_settings.py'
+]
+
+
+[tool.ruff.lint]
+preview = true
+ignore = ['PLR6301', 'PLR0904']
+select = [
+    'I', # Isort - Checagem de ordenação de imports em ordem alfabética
+    'F', # Pyflakes - Procura por alguns erros em relação a boas práticas de código
+    'E', # Erros pycodestyle - Erros de estilo de código
+    'W', # Avisos pycodestyle - Avisos de coisas não recomendadas no estilo de código
+    'PL', # Pylint - Como o F, também procura por erros em relação a boas práticas de código
+    'PT' # flake8-pytest - Checagem de boas práticas do Pytest
+]
+
+[tool.ruff.format]
+preview = true
+quote-style = 'single'
 
 [build-system]
 requires = ["poetry-core"]

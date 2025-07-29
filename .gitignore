@@ -3,20 +3,16 @@
 */*/*/__pycache__
 
 .pytest_cache
+pytest.ini
+
+.coverage
+.ruff_cache
+htmlcov
 
 .env
 .vscode
 
-poetry.
 db.sqlite3
-
-.pg_flix
 .postgres_data
 
-notes
-.vscode
-
-.coverage
-htmlcov
 tempfiles
-pytest.ini

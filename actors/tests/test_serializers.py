@@ -1,4 +1,5 @@
 import datetime
+
 import pytest
 
 from actors.serializers import ActorSerializer
@@ -8,15 +9,14 @@ from app.test_settings import faker_gen
 
 @pytest.mark.django_db
 class TestActorSerializer:
-
     def setup_method(self):
         self.serializer = ActorSerializer
 
     def test_actor_serializer_valid_data(self):
         data = {
-            "name": faker_gen.name_male(),
-            "birthday": faker_gen.date_of_birth(),
-            "nationality": "USA"
+            'name': faker_gen.name_male(),
+            'birthday': faker_gen.date_of_birth(),
+            'nationality': 'USA',
         }
         serializer = self.serializer(data=data)
 
@@ -30,9 +30,9 @@ class TestActorSerializer:
 
     def test_actor_serializer_invalid_data_name(self):
         data = {
-            "name": "",
-            "birthday": datetime.date(day=25, month=10, year=2001),
-            "nationality": "BRA"
+            'name': '',
+            'birthday': datetime.date(day=25, month=10, year=2001),
+            'nationality': 'BRA',
         }
         serializer = self.serializer(data=data)
 
@@ -43,9 +43,9 @@ class TestActorSerializer:
 
     def test_actor_serializer_invalid_data_birthday(self):
         data = {
-            "name": faker_gen.name_female(),
-            "birthday": "Not-a-date",
-            "nationality": "BRA"
+            'name': faker_gen.name_female(),
+            'birthday': 'Not-a-date',
+            'nationality': 'BRA',
         }
         serializer = self.serializer(data=data)
 
@@ -56,9 +56,9 @@ class TestActorSerializer:
 
     def test_actor_serializer_invalid_data_nationality(self):
         data = {
-            "name": faker_gen.name_female(),
-            "birthday": datetime.date(day=25, month=10, year=2001),
-            "nationality": "NOT-IN-CHOICES"
+            'name': faker_gen.name_female(),
+            'birthday': datetime.date(day=25, month=10, year=2001),
+            'nationality': 'NOT-IN-CHOICES',
         }
         serializer = self.serializer(data=data)
 
@@ -68,7 +68,6 @@ class TestActorSerializer:
         assert '"NOT-IN-CHOICES" is not a valid choice.' == str(serializer.errors['nationality'][0])
 
     def test_actor_serializer_output(self):
-
         obj = ActorFactory()
         serializer = self.serializer(instance=obj)
 

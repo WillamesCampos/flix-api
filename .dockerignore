@@ -1,22 +1,19 @@
-.pg_flix
-.postgres_data
-
-.vscode
-.gitignore
-.git
-.github
-
-
-README.md
-
 */__pycache__
 */*/__pycache__
 */*/*/__pycache__
 
-poetry.lock
-pyproject.toml
+.pytest_cache
+pytest.ini
+
+.coverage
+.ruff_cache
+htmlcov
+
+.vscode
+
+db.sqlite3
+.postgres_data
 
 tempfiles
 
-
-
+.gitignore

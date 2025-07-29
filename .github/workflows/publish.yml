@@ -39,15 +39,17 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: 3.11
+          python-version: 3.13
       - name: Install dependencies
         run: |
-          pip install -r requirements.txt
-          pip install -r requirements_dev.txt
+          python -m pip install --upgrade pip
+          pip install poetry --no-cache-dir
+          poetry config virtualenvs.create false
+          poetry install --no-interaction --no-root --no-cache-dir
       - name: Lint
-        run: flake8 . --count
+        run: make lint
       - name: Tests
-        run: python -m pytest -vvv --cov=. --cov-report=term-missing
+        run: make test
   docker-image-release:
     needs: quality-assurance-before-push
 
