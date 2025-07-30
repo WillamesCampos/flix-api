@@ -7,10 +7,10 @@ from app.test_settings import faker_gen
 from genres.tests.factories import GenreFactory
 from movies.models import Movie
 
+DEFAULT_ACTORS_COUNT = 3
+
 
 class MovieFactory(factory.django.DjangoModelFactory):
-    DEFAULT_ACTORS_COUNT = 3
-
     class Meta:
         model = Movie
 
@@ -27,5 +27,5 @@ class MovieFactory(factory.django.DjangoModelFactory):
         if extracted:
             self.actors.set(extracted)
         else:
-            default_actors = ActorFactory.create_batch(self.DEFAULT_ACTORS_COUNT)
+            default_actors = ActorFactory.create_batch(DEFAULT_ACTORS_COUNT)
             self.actors.set(default_actors)

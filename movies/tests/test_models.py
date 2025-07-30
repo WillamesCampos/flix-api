@@ -1,7 +1,7 @@
 import pytest
 from django.db import DataError, IntegrityError
 
-from movies.factories import MovieFactory
+from movies.factories import DEFAULT_ACTORS_COUNT, MovieFactory
 from movies.models import Movie
 
 
@@ -15,7 +15,7 @@ class TestModelMovie:
         assert movie.genre is not None
         assert movie.release_date is not None
         assert movie.resume is not None
-        assert movie.actors.count() == MovieFactory.DEFAULT_ACTORS_COUNT
+        assert movie.actors.count() == DEFAULT_ACTORS_COUNT
 
     def test_movie_str(self):
         movie = MovieFactory(title='Inception')
@@ -45,7 +45,7 @@ class TestModelMovie:
 
     def test_movie_actors_related(self):
         movie = MovieFactory()
-        assert movie.actors.count() == MovieFactory.DEFAULT_ACTORS_COUNT
+        assert movie.actors.count() == DEFAULT_ACTORS_COUNT
 
         # Check if the actors are correctly linked to the movie
         for actor in movie.actors.all():
