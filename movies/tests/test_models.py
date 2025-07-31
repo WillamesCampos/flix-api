@@ -1,8 +1,8 @@
 import pytest
 from django.db import DataError, IntegrityError
 
-from movies.factories import DEFAULT_ACTORS_COUNT, MovieFactory
 from movies.models import Movie
+from movies.tests.factories import DEFAULT_ACTORS_COUNT, MovieFactory
 
 
 @pytest.mark.django_db

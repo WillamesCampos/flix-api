@@ -2,6 +2,7 @@ import pytest
 
 from actors.tests.factories import ActorFactory
 from genres.tests.factories import GenreFactory
+from reviews.tests.factories import ReviewFactory
 
 
 @pytest.fixture
@@ -12,6 +13,11 @@ def genre_factory():
 @pytest.fixture
 def list_of_actors_id_factory():
     return [ActorFactory().id for _ in range(3)]
+
+
+@pytest.fixture
+def list_review_factory():
+    return [ReviewFactory.create_batch(5), ReviewFactory.create_batch(5), ReviewFactory.create_batch(5)]
 
 
 @pytest.fixture

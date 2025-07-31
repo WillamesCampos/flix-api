@@ -30,6 +30,8 @@ run_dev:
 test:
 	python -m pytest -vvv
 	coverage html
+run_dev:
+	python manage.py runserver
 
 # Poetry
 export_plugin:

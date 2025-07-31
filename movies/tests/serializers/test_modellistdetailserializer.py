@@ -3,8 +3,8 @@ from datetime import date
 import pytest
 
 from actors.serializers import ActorSerializer
-from movies.factories import MovieFactory
 from movies.serializers import MovieListDetailSerializer
+from movies.tests.factories import MovieFactory
 
 
 @pytest.fixture

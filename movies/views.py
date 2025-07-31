@@ -9,7 +9,7 @@ from movies.serializers import (
     MovieStatsSerializer,
 )
 
-from .services import stats
+from .services.stats_service import stats_service
 
 
 class MovieCreateListView(generics.ListCreateAPIView):
@@ -46,9 +46,9 @@ class MovieStatsView(views.APIView):
     queryset = Movie.objects.all()
 
     def get(self, request):
-        stats_service = stats.MovieStatsService(queryset=self.queryset)
+        service = stats_service(queryset=self.queryset)
 
-        data = stats_service.build_data()
+        data = service.build_data()
 
         serializer = MovieStatsSerializer(data=data)
         serializer.is_valid(raise_exception=True)
