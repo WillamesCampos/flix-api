@@ -25,7 +25,7 @@ class MovieCreateListView(generics.ListCreateAPIView):
         return MovieModelSerializer
 
 
-class MovieRetrieveUpdateDestroyView(generics.RetrieveDestroyAPIView):
+class MovieRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = (
         IsAuthenticated,
         GlobalDefaultPermission,
