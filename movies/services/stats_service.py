@@ -15,7 +15,12 @@ class MovieStatsService:
         return self.queryset.values('genre__name').annotate(count=Count('id'))
 
     def __get_average_stars(self) -> float:
-        average_stars = round(Review.objects.aggregate(avg_stars=Avg('stars'))['avg_stars'], 1)
+        result = Review.objects.aggregate(avg_stars=Avg('stars'))['avg_stars']
+
+        if result is not None:
+            average_stars = round(result, 1)
+        else:
+            average_stars = 0.0
 
         return average_stars if average_stars else 0
 
@@ -28,3 +33,6 @@ class MovieStatsService:
         }
 
         return data
+
+
+stats_service = MovieStatsService

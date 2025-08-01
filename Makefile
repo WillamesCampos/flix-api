@@ -51,3 +51,7 @@ format:
 	make -f Makefile.dev format
 coverage:
 	make -f Makefile.dev coverage
+devrun:
+	make -f Makefile.dev run_dev
+devrunc:
+	make -f Makefile.dev up
