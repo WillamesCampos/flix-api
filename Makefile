@@ -55,3 +55,5 @@ devrun:
 	make -f Makefile.dev run_dev
 devrunc:
 	make -f Makefile.dev up
+devdb:
+	make -f Makefile.dev devdb
