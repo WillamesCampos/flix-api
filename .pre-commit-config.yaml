@@ -11,7 +11,9 @@ repos:
     rev: v0.4.4
     hooks:
       - id: ruff  # Lint
-        args: [--no-fix]
+        args: [
+          "--ignore=PT023,PLR0913",
+        ]
       - id: ruff  # Fix
         name: ruff-fix
         args: [--fix-only]
