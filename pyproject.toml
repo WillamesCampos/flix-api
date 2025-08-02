@@ -86,7 +86,7 @@ extend-exclude = [
 
 [tool.ruff.lint]
 preview = true
-ignore = ['PLR6301', 'PLR0904']
+ignore = ['PT001', 'PT023', 'PLR0913', 'PLR6301', 'PLR0904']
 select = [
     'I', # Isort - Checagem de ordenação de imports em ordem alfabética
     'F', # Pyflakes - Procura por alguns erros em relação a boas práticas de código

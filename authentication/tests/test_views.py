@@ -9,37 +9,37 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from authentication.tests.factories import UserFactory
 
 
-@pytest.fixture()
+@pytest.fixture
 def url_token():
     return reverse('token_obtain_pair')
 
 
-@pytest.fixture()
+@pytest.fixture
 def url_refresh_token():
     return reverse('token_refresh')
 
 
-@pytest.fixture()
+@pytest.fixture
 def url_verify_token():
     return reverse('token_verify')
 
 
-@pytest.fixture()
+@pytest.fixture
 def user_password():
     return 'AKnownP@ssword!_'
 
 
-@pytest.fixture()
+@pytest.fixture
 def client():
     return APIClient()
 
 
-@pytest.fixture()
+@pytest.fixture
 def user(user_password):
     return UserFactory(password=user_password)
 
 
-@pytest.mark.django_db()
+@pytest.mark.django_db
 class TestAuthenticationAPI:
     def test_user_authentication_success(self, url_token, user_password, client, user):
         user_obj = {'username': user.username, 'password': user_password}

@@ -8,13 +8,9 @@ repos:
       - id: check-toml
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.4.4
+    rev: v0.12.7
     hooks:
-      - id: ruff  # Lint
+      - id: ruff
         args: [
-          "--ignore=PT023,PLR0913"
+          "--no-fix"
         ]
-      - id: ruff  # Fix
-        name: ruff-fix
-        args: [--fix-only]
-      - id: ruff-format
