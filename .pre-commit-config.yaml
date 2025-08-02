@@ -13,6 +13,7 @@ repos:
       - id: ruff  # Lint
         args: [
           "--ignore=PT023,PLR0913",
+          "-no--fix"
         ]
       - id: ruff  # Fix
         name: ruff-fix
