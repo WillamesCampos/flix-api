@@ -57,3 +57,5 @@ devrunc:
 	make -f Makefile.dev up
 devdb:
 	make -f Makefile.dev devdb
+devlogs:
+	make -f Makefile.dev mongo
