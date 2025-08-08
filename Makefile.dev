@@ -10,6 +10,8 @@ logs:
 	docker compose logs -f
 devdb:
 	docker compose up flix_db -d
+mongo:
+	docker compose up mongo -d
 
 
 # Django
@@ -19,31 +21,6 @@ test:
 run_dev:
 	python manage.py runserver
 
-# Poetry
-export_plugin:
-	poetry self add poetry-plugin-export
-poetry-install:
-	pip install poetry
-poetry-requirements:
-	poetry add $(cat requirements.txt)
-poetry-dev-requirements:
-	poetry add --group-dev $(cat requirements_dev.txt)
-requirements:
-	poetry export \
-	--format=requirements.txt \
-	--without-hashes \
-	--without group_dev \
-	--output=requirements.txt
-
-	sed -i 's/ *;.*//' requirements.txt
-requirements_dev:
-	poetry export \
-	--format=requirements.txt \
-	--without-hashes \
-	--only group_dev \
-	--output=requirements_dev.txt
-
-	sed -i 's/ *;.*//' requirements_dev.txt
 
 # Linter
 lint:

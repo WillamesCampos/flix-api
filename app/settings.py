@@ -11,9 +11,12 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 import os
+import logging
 from datetime import timedelta
 from pathlib import Path
+import sys
 from dotenv import load_dotenv
+
 
 
 load_dotenv()
@@ -29,9 +32,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+result = os.environ.get('DEBUG', False)
+if result and result == 'DEV':
+    DEBUG = True
+else:
+    DEBUG = False
 
 ALLOWED_HOSTS = ['*',]
+MONGO_URI = os.getenv("MONGO_URI")
 
 
 # Application definition
@@ -42,6 +50,8 @@ PROJECT_APPS = [
     'movies',
     'reviews',
     'authentication',
+    'logs',
+    # 'apploging',
 ]
 
 THIRD_PARTY_APPS = [
@@ -70,6 +80,43 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'default': {
+            'format': '%(asctime)s - %(levelname)s - %(message)s'
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'stream': sys.stdout,
+            'formatter': 'default',
+        },
+        'mongo': {
+            '()': 'logs.handlers.create_mongo_handler',
+            'mongo_uri': MONGO_URI,
+            'db_name': os.environ.get('MONGO_INITDB_DATABASE'),
+            'collection': 'logs',
+            'formatter': 'default',
+        },
+    },
+    'loggers': {
+        'flix_api_logger': {
+            'handlers': ['console', 'mongo'],
+            'level': 'DEBUG' if DEBUG else 'INFO',
+            'propagate': False,
+        },
+    },
+
+}
+
+
+logger = logging.getLogger('flix_api_logger')
+
 
 ROOT_URLCONF = 'app.urls'
 

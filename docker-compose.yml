@@ -12,8 +12,10 @@ services:
       - POSTGRES_HOST=flix_db
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
+      - MONGO_URI=mongodb://root:${MONGO_INITDB_ROOT_PASSWORD}@mongo:27017/${MONGO_INITDB_DATABASE}?authSource=admin
     depends_on:
       - flix_db
+      - mongo
 
   flix_db:
     container_name: flix_db
@@ -26,7 +28,24 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
 
+  mongo:
+    container_name: mongo
+    image: mongo:latest
+    ports:
+      - 27017:27017
+    volumes:
+      - .mongo_data:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+      - MONGO_INITDB_DATABASE=${MONGO_INITDB_DATABASE}
+    healthcheck:
+      test: ["CMD-SHELL", "mongosh --quiet 'mongodb://$$MONGO_INITDB_ROOT_USERNAME:$$MONGO_INITDB_ROOT_PASSWORD@127.0.0.1:27017/admin' --eval 'db.runCommand({ ping: 1 })'"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
 
 volumes:
   .postgres_data:
-
+  .mongo_data:
