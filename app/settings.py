@@ -51,7 +51,7 @@ PROJECT_APPS = [
     'reviews',
     'authentication',
     'logs',
-    # 'apploging',
+    'core',
 ]
 
 THIRD_PARTY_APPS = [
