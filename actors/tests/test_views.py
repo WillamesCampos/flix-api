@@ -81,7 +81,7 @@ class TestActorAPI(BaseAPITest):
     def test_update_actor_success(self, existing_actor):
         self.give_permissions(model=Actor)
 
-        id = existing_actor.id
+        id = existing_actor.uuid
         data = {'name': faker_gen.name_female()}
         url = reverse('actor-detail-view', kwargs={'pk': id})
         response = self.client.patch(url, data)
@@ -92,7 +92,7 @@ class TestActorAPI(BaseAPITest):
         assert existing_actor.name == data['name']
 
     def test_update_actor_without_permissions(self, existing_actor):
-        id = existing_actor.id
+        id = existing_actor.uuid
         data = {'name': faker_gen.name_female()}
         url = reverse('actor-detail-view', kwargs={'pk': id})
         response = self.client.patch(url, data)
@@ -103,7 +103,7 @@ class TestActorAPI(BaseAPITest):
     def test_update_actor_user_not_authenticated(self, existing_actor):
         self.client.logout()
 
-        id = existing_actor.id
+        id = existing_actor.uuid
         data = {'name': faker_gen.name_female()}
         url = reverse('actor-detail-view', kwargs={'pk': id})
         response = self.client.patch(url, data)
@@ -116,7 +116,7 @@ class TestActorAPI(BaseAPITest):
     def test_delete_actor_success(self, existing_actor):
         self.give_permissions(model=Actor)
 
-        id = existing_actor.id
+        id = existing_actor.uuid
         actor_name = existing_actor.name
 
         url = reverse('actor-detail-view', kwargs={'pk': id})
@@ -126,7 +126,7 @@ class TestActorAPI(BaseAPITest):
         assert not Actor.objects.filter(name=actor_name).exists()
 
     def test_delete_actor_without_permissions(self, existing_actor):
-        id = existing_actor.id
+        id = existing_actor.uuid
         url = reverse('actor-detail-view', kwargs={'pk': id})
         response = self.client.delete(url)
 
@@ -136,7 +136,7 @@ class TestActorAPI(BaseAPITest):
     def test_delete_actor_user_not_authenticated(self, existing_actor):
         self.client.logout()
 
-        id = existing_actor.id
+        id = existing_actor.uuid
         url = reverse('actor-detail-view', kwargs={'pk': id})
         response = self.client.delete(url)
 

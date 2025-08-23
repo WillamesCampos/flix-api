@@ -41,8 +41,8 @@ run:
 # ======================================
 test:
 	make -f Makefile.dev test
-db_test:
-	make -f Makefile.dev db
+devdb:
+	make -f Makefile.dev devdb
 lint:
 	make -f Makefile.dev lint
 fix:

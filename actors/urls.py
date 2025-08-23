@@ -9,7 +9,7 @@ urlpatterns = [
         name='actor-create-list',
     ),
     path(
-        'actors/<int:pk>/',
+        'actors/<uuid:pk>/',
         views.ActorRetrieveUpdateDestroyView.as_view(),
         name='actor-detail-view',
     ),
