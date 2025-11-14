@@ -15,21 +15,12 @@ class GenreSerializer(serializers.ModelSerializer):
 
 
 class GenreBulkCreateSerializer(serializers.Serializer):
-    """
-    Serializer para criação em lote de gêneros.
-    Aceita uma lista de nomes de gêneros e cria apenas os que não existem.
-    """
-
     genres = serializers.ListField(child=serializers.CharField(max_length=200), min_length=1, help_text='Lista de nomes de gêneros para criar')
 
     def validate_genres(self, value):
-        """
-        Valida que os nomes não são apenas números e remove duplicatas na lista.
-        """
         if not value:
             raise serializers.ValidationError('A lista de gêneros não pode estar vazia.')
 
-        # Remove duplicatas mantendo a ordem
         seen = set()
         unique_genres = []
         for genre in value:

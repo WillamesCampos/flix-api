@@ -4,7 +4,7 @@ from rest_framework.permissions import IsAuthenticated
 from app.decorators import log_request
 from app.permissions import GlobalDefaultPermission
 from reviews.models import Review
-from reviews.serializers import ReviewSerializer
+from reviews.serializers import ReviewSerializer, ReviewUpdateSerializer
 
 
 class ReviewCreateListView(generics.ListCreateAPIView):
@@ -30,7 +30,7 @@ class ReviewRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
         GlobalDefaultPermission,
     )
     queryset = Review.objects.all()
-    serializer_class = ReviewSerializer
+    serializer_class = ReviewUpdateSerializer
 
     @log_request
     def retrieve(self, request, *args, **kwargs):

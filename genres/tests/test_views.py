@@ -209,7 +209,6 @@ class TestGenreBulkCreateAPI(BaseAPITest):
     EXPECTED_SKIPPED_ZERO = 0
 
     def test_bulk_create_genres_success(self):
-        """Testa criação em lote de gêneros novos"""
         self.give_permissions(model=Genre)
 
         data = {'genres': ['Ação', 'Comédia', 'Drama', 'Terror', 'Suspense']}
@@ -226,10 +225,8 @@ class TestGenreBulkCreateAPI(BaseAPITest):
         assert Genre.objects.count() == initial_count + self.EXPECTED_CREATED_FIVE
 
     def test_bulk_create_genres_skip_existing(self):
-        """Testa que gêneros já existentes são ignorados"""
         self.give_permissions(model=Genre)
 
-        # Criar alguns gêneros existentes
         GenreFactory(name='Ação')
         GenreFactory(name='Comédia')
 
@@ -240,8 +237,8 @@ class TestGenreBulkCreateAPI(BaseAPITest):
         response = self.client.post(url, data, format='json')
 
         assert response.status_code == status.HTTP_201_CREATED
-        assert response.data['created'] == self.EXPECTED_CREATED_TWO  # Apenas Drama e Terror
-        assert response.data['skipped'] == self.EXPECTED_SKIPPED_TWO  # Ação e Comédia
+        assert response.data['created'] == self.EXPECTED_CREATED_TWO
+        assert response.data['skipped'] == self.EXPECTED_SKIPPED_TWO
         assert len(response.data['created_genres']) == self.EXPECTED_CREATED_TWO
         assert len(response.data['skipped_genres']) == self.EXPECTED_SKIPPED_TWO
         assert 'Ação' in response.data['skipped_genres']
@@ -249,10 +246,8 @@ class TestGenreBulkCreateAPI(BaseAPITest):
         assert Genre.objects.count() == initial_count + self.EXPECTED_CREATED_TWO
 
     def test_bulk_create_genres_all_existing(self):
-        """Testa quando todos os gêneros já existem"""
         self.give_permissions(model=Genre)
 
-        # Criar todos os gêneros
         GenreFactory(name='Ação')
         GenreFactory(name='Comédia')
         GenreFactory(name='Drama')
@@ -271,11 +266,9 @@ class TestGenreBulkCreateAPI(BaseAPITest):
         assert Genre.objects.count() == initial_count
 
     def test_bulk_create_genres_case_insensitive(self):
-        """Testa que a verificação de duplicatas é case-insensitive"""
         EXPECTED_SKIPPED = 1
         self.give_permissions(model=Genre)
 
-        # Criar gênero com minúsculas
         GenreFactory(name='ação')
 
         data = {'genres': ['Ação', 'COMÉDIA', 'drama']}
@@ -288,12 +281,11 @@ class TestGenreBulkCreateAPI(BaseAPITest):
 
         assert response.status_code == status.HTTP_201_CREATED
         assert response.data['created'] == genres_created.count()
-        assert response.data['skipped'] == EXPECTED_SKIPPED  # Ação (já existe como 'ação')
+        assert response.data['skipped'] == EXPECTED_SKIPPED
         assert 'Ação' in response.data['skipped_genres']
         assert Genre.objects.count() == initial_count + genres_created.count()
 
     def test_bulk_create_genres_remove_duplicates_in_list(self):
-        """Testa que duplicatas na lista são removidas antes de processar"""
         self.give_permissions(model=Genre)
 
         data = {'genres': ['Ação', 'ação', 'AÇÃO', 'Comédia', 'comédia']}
@@ -309,7 +301,6 @@ class TestGenreBulkCreateAPI(BaseAPITest):
         assert Genre.objects.count() == initial_count + genres_created.count()
 
     def test_bulk_create_genres_empty_list(self):
-        """Testa validação de lista vazia"""
         self.give_permissions(model=Genre)
 
         data = {'genres': []}
@@ -321,7 +312,6 @@ class TestGenreBulkCreateAPI(BaseAPITest):
         assert 'genres' in response.data
 
     def test_bulk_create_genres_invalid_numeric_name(self):
-        """Testa validação de nome numérico"""
         self.give_permissions(model=Genre)
 
         data = {'genres': ['Ação', '12345', 'Comédia']}
@@ -333,7 +323,6 @@ class TestGenreBulkCreateAPI(BaseAPITest):
         assert 'genres' in response.data
 
     def test_bulk_create_genres_without_permissions(self):
-        """Testa acesso sem permissões"""
         data = {'genres': ['Ação', 'Comédia']}
         url = reverse('genre-bulk-create')
 
@@ -341,7 +330,6 @@ class TestGenreBulkCreateAPI(BaseAPITest):
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
     def test_bulk_create_genres_user_not_authenticated(self):
-        """Testa acesso sem autenticação"""
         self.client.logout()
         data = {'genres': ['Ação', 'Comédia']}
         url = reverse('genre-bulk-create')
@@ -350,7 +338,6 @@ class TestGenreBulkCreateAPI(BaseAPITest):
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
     def test_bulk_create_genres_response_structure(self):
-        """Testa estrutura da resposta"""
         self.give_permissions(model=Genre)
 
         GenreFactory(name='Ação')
@@ -370,7 +357,6 @@ class TestGenreBulkCreateAPI(BaseAPITest):
         assert isinstance(response.data['created_genres'], list)
         assert isinstance(response.data['skipped_genres'], list)
 
-        # Verificar estrutura dos gêneros criados
         if response.data['created_genres']:
             created_genre = response.data['created_genres'][0]
             assert 'uuid' in created_genre

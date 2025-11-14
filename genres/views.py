@@ -58,17 +58,11 @@ class GenreBulkCreateView(views.APIView):
 
     @log_request
     def post(self, request):
-        """
-        Cria múltiplos gêneros em lote.
-        Apenas cria gêneros que não existem no banco de dados.
-        """
         serializer = GenreBulkCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         genre_names = serializer.validated_data['genres']
 
-        # Buscar gêneros que já existem (case-insensitive)
-        # Construir query OR para buscar todos os nomes (case-insensitive)
         q_objects = [Q(name__iexact=name) for name in genre_names]
         if q_objects:
             existing_genres = Genre.objects.filter(reduce(operator.or_, q_objects)).values_list('name', flat=True)
@@ -76,16 +70,13 @@ class GenreBulkCreateView(views.APIView):
         else:
             existing_names_lower = set()
 
-        # Filtrar apenas os gêneros que não existem
         genres_to_create = [name for name in genre_names if name.lower() not in existing_names_lower]
 
-        # Criar os novos gêneros
         created_genres = []
         for genre_name in genres_to_create:
             genre = Genre.objects.create(name=genre_name)
             created_genres.append(GenreSerializer(genre).data)
 
-        # Preparar resposta
         response_data = {
             'created': len(created_genres),
             'skipped': len(genre_names) - len(created_genres),
