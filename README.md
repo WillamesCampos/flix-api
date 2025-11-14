@@ -1,55 +1,449 @@
-# Flix - API
+# 🎬 Flix API
 
-API Restful para consulta e cadastro de filmes, com o intuito de utilizar de forma eficiente e com boas práticas para projetos Django com Django Rest Framework.
+API RESTful desenvolvida com Django e Django REST Framework para gerenciamento de filmes, atores, gêneros e avaliações. O projeto foi desenvolvido seguindo as melhores práticas de desenvolvimento Django, com arquitetura modular, testes abrangentes e CI/CD configurado.
 
+## 📋 Índice
 
-## 🚀 Features
+- [Sobre o Projeto](#-sobre-o-projeto)
+- [Funcionalidades](#-funcionalidades)
+- [Tecnologias](#-tecnologias)
+- [Pré-requisitos](#-pré-requisitos)
+- [Instalação e Configuração](#-instalação-e-configuração)
+- [Uso](#-uso)
+- [Comandos Makefile](#-comandos-makefile)
+- [Testes](#-testes)
+- [Estrutura do Projeto](#-estrutura-do-projeto)
+- [Deploy](#-deploy)
+- [Desafios e Soluções](#-desafios-e-soluções)
+- [Contribuindo](#-contribuindo)
+- [Licença](#-licença)
 
-- CRUD de Movies
-- CRUD de Actors
-- CRUD de Reviews
-- CRUD de Genres
-- Django Management Command para import de Actors via arquivo `.csv`
-- Endpoint com estatísticas dos Movies
+## 🎯 Sobre o Projeto
 
-## 🧰 Tech Stack
+Flix API é uma aplicação backend completa para gerenciamento de um catálogo de filmes. O projeto foi desenvolvido como parte do aprendizado de desenvolvimento de APIs com Django REST Framework, implementando conceitos avançados como:
 
-| Área | Tecnologia |
-|--------|------------|
-| Backend | Django, Django Rest Framework |
-| Banco de Dados | PostgreSQL |
-| Tarefas Assíncronas | A definir |
-| Comunicação em tempo real | A definir |
-| Integração AI | A definir |
-| Autenticação | Django Rest Simple JWT |
-| DevOps | Docker |
-| Arquitetura | Projeto Django com boas práticas |
+- Autenticação JWT
+- Permissões customizadas baseadas em modelos
+- Serializers com validações complexas
+- Testes automatizados com alta cobertura
+- Migrações de banco de dados complexas
+- Arquitetura baseada em serviços
+- Integração com múltiplos bancos de dados (PostgreSQL e MongoDB)
+
+## 🚀 Funcionalidades
+
+### CRUD Completo
+- ✅ **Movies (Filmes)**: Gerenciamento completo de filmes com relacionamentos com atores e gêneros
+- ✅ **Actors (Atores)**: CRUD de atores com informações de nacionalidade e data de nascimento
+- ✅ **Genres (Gêneros)**: Gerenciamento de categorias de filmes
+- ✅ **Reviews (Avaliações)**: Sistema de avaliações com notas e comentários
+
+### Funcionalidades Especiais
+- 📊 **Estatísticas de Filmes**: Endpoint dedicado para estatísticas agregadas
+- 📥 **Importação de Atores**: Comando Django para importar atores via arquivo CSV
+- 🔐 **Autenticação JWT**: Sistema completo de autenticação com tokens
+- 🛡️ **Sistema de Permissões**: Permissões granulares baseadas em modelos e ações
+
+## 🧰 Tecnologias
+
+### Backend
+- **Python 3.13**
+- **Django 5.2.1** - Framework web
+- **Django REST Framework 3.16.0** - Framework para APIs REST
+- **Django REST Framework Simple JWT 5.5.0** - Autenticação JWT
+
+### Banco de Dados
+- **PostgreSQL** - Banco de dados relacional principal
+- **MongoDB** - Banco de dados NoSQL (para logs e dados não relacionais)
+
+### Ferramentas de Desenvolvimento
+- **Poetry** - Gerenciamento de dependências
+- **Pytest** - Framework de testes
+- **Ruff** - Linter e formatação de código
+- **Factory Boy** - Criação de fixtures para testes
+- **Coverage** - Análise de cobertura de testes
+
+### DevOps
+- **Docker** - Containerização da aplicação
+- **Docker Compose** - Orquestração de containers
+- **GitHub Actions** - CI/CD
+
+## 📦 Pré-requisitos
+
+Antes de começar, você precisa ter instalado em sua máquina:
+
+- **Python 3.11+**
+- **Poetry** ([Instalação](https://python-poetry.org/docs/#installation))
+- **Docker** e **Docker Compose** ([Instalação](https://docs.docker.com/get-docker/))
+- **Git**
+
+## 🔧 Instalação e Configuração
+
+### 1. Clone o repositório
+
+```bash
+git clone https://github.com/seu-usuario/flix-api.git
+cd flix-api
+```
+
+### 2. Configure as variáveis de ambiente
+
+Crie um arquivo `.env` na raiz do projeto com as seguintes variáveis:
+
+```env
+# Django
+DJANGO_SECRET_KEY=sua-chave-secreta-aqui
+DEBUG=DEV
+ALLOWED_HOSTS=*
+
+# PostgreSQL
+POSTGRES_DB=flix_db
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=sua-senha-postgres
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+
+# MongoDB
+MONGO_INITDB_ROOT_USERNAME=root
+MONGO_INITDB_ROOT_PASSWORD=sua-senha-mongo
+MONGO_INITDB_DATABASE=flix_logs
+MONGO_URI=mongodb://root:sua-senha-mongo@mongo:27017/flix_logs?authSource=admin
+```
+
+### 3. Instale as dependências
+
+```bash
+poetry install
+```
+
+### 4. Execute com Docker (Recomendado)
+
+```bash
+# Construir e iniciar os containers
+make up-build
+
+# Ou iniciar em background
+make up-d
+
+# Executar migrações
+make migrate
+```
+
+### 5. Ou execute localmente
+
+```bash
+# Inicie apenas o banco de dados
+make dev-db
+make dev-mongo
+
+# Execute as migrações
+python manage.py migrate
+
+# Crie um superusuário (opcional)
+python manage.py createsuperuser
+
+# Inicie o servidor
+make run-dev
+```
+
+A API estará disponível em `http://localhost:8000`
+
+## 📖 Uso
+
+### Autenticação
+
+Primeiro, obtenha um token JWT:
+
+```bash
+curl -X POST http://localhost:8000/api/v1/authentication/token/ \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "seu-usuario",
+    "password": "sua-senha"
+  }'
+```
+
+Use o token retornado nas requisições subsequentes:
+
+```bash
+curl -X GET http://localhost:8000/api/v1/movies/ \
+  -H "Authorization: Bearer seu-token-aqui"
+```
+
+### Endpoints Principais
+
+#### Movies
+- `GET /api/v1/movies/` - Lista todos os filmes
+- `POST /api/v1/movies/` - Cria um novo filme
+- `GET /api/v1/movies/{uuid}/` - Detalhes de um filme
+- `PATCH /api/v1/movies/{uuid}/` - Atualiza um filme
+- `DELETE /api/v1/movies/{uuid}/` - Remove um filme
+- `GET /api/v1/movies/stats/` - Estatísticas dos filmes
+
+#### Actors
+- `GET /api/v1/actors/` - Lista todos os atores
+- `POST /api/v1/actors/` - Cria um novo ator
+- `GET /api/v1/actors/{uuid}/` - Detalhes de um ator
+- `PATCH /api/v1/actors/{uuid}/` - Atualiza um ator
+- `DELETE /api/v1/actors/{uuid}/` - Remove um ator
+
+#### Genres
+- `GET /api/v1/genres/` - Lista todos os gêneros
+- `POST /api/v1/genres/` - Cria um novo gênero
+- `GET /api/v1/genres/{uuid}/` - Detalhes de um gênero
+- `PATCH /api/v1/genres/{uuid}/` - Atualiza um gênero
+- `DELETE /api/v1/genres/{uuid}/` - Remove um gênero
+
+#### Reviews
+- `GET /api/v1/reviews/` - Lista todas as avaliações
+- `POST /api/v1/reviews/` - Cria uma nova avaliação
+- `GET /api/v1/reviews/{uuid}/` - Detalhes de uma avaliação
+- `PATCH /api/v1/reviews/{uuid}/` - Atualiza uma avaliação
+- `DELETE /api/v1/reviews/{uuid}/` - Remove uma avaliação
+
+### Importação de Atores
+
+```bash
+python manage.py import_actors caminho/para/arquivo.csv
+```
+
+## 🛠️ Comandos Makefile
+
+O projeto possui um Makefile completo para facilitar o desenvolvimento. Execute `make help` para ver todos os comandos disponíveis.
+
+### Docker
+
+```bash
+make up              # Inicia todos os serviços Docker
+make up-d            # Inicia todos os serviços Docker em background
+make up-build         # Constrói e inicia os serviços Docker
+make down             # Para e remove os serviços Docker
+make logs             # Mostra os logs dos serviços Docker
+make build            # Constrói a imagem Docker
+make build-image      # Constrói a imagem Docker para publicação
+make push             # Publica a imagem Docker no registry
+make dev-db           # Inicia apenas o banco de dados em background
+make dev-mongo        # Inicia apenas o MongoDB em background
+make destroy-db       # Para e remove o container do banco de dados
+make destroy-web      # Para e remove o container da aplicação web
+```
+
+### Django
+
+```bash
+make migrate          # Executa as migrações do Django (Docker)
+make makemigrations   # Cria novas migrações do Django (Docker)
+make run              # Inicia o servidor de desenvolvimento Django (Docker)
+make run-dev          # Inicia o servidor de desenvolvimento Django (local)
+make shell            # Abre o shell do Django (Docker)
+make shell-dev        # Abre o shell do Django (local)
+```
+
+### Testes
+
+```bash
+make test             # Executa os testes e gera relatório de coverage
+make test-docker      # Executa os testes dentro do container Docker
+make coverage         # Mostra o relatório de coverage
+make coverage-html    # Gera o relatório de coverage em HTML
+```
+
+### Linting e Formatação
+
+```bash
+make lint             # Verifica o código com ruff
+make fix              # Corrige problemas encontrados pelo ruff
+make format           # Formata o código com ruff
+```
+
+## 🧪 Testes
+
+O projeto possui uma suíte completa de testes com alta cobertura de código.
+
+### Executar Testes
+
+```bash
+# Executar todos os testes
+make test
+
+# Executar testes com mais verbosidade
+pytest -vvv
+
+# Executar testes de um app específico
+pytest movies/tests/
+
+# Executar um teste específico
+pytest movies/tests/test_views.py::TestMoviesAPI::test_create_movie_success
+```
+
+### Cobertura de Código
+
+O projeto mantém uma cobertura mínima de 75%. Para ver o relatório:
+
+```bash
+make coverage        # Relatório no terminal
+make coverage-html   # Relatório HTML em htmlcov/
+```
 
 ## 📂 Estrutura do Projeto
 
-Este projeto segue boas práticas de um projeto desenvolvido com Django e Django Rest Framework, com o objetivo de separar lógica de negócio e recursos do framework, fazendo alterações mínimas da organização padrão do Django.
+```
+flix-api/
+├── actors/              # App de Atores
+│   ├── management/      # Comandos Django customizados
+│   ├── migrations/      # Migrações do banco de dados
+│   ├── tests/          # Testes do app
+│   ├── models.py       # Modelos de dados
+│   ├── serializers.py  # Serializers da API
+│   ├── views.py        # Views da API
+│   └── urls.py         # Rotas do app
+├── genres/             # App de Gêneros
+├── movies/              # App de Filmes
+│   └── services/        # Serviços de negócio
+├── reviews/            # App de Avaliações
+├── authentication/     # Autenticação JWT
+├── core/               # Modelos base compartilhados
+├── app/                # Configurações principais
+│   ├── settings.py     # Configurações do Django
+│   ├── permissions.py  # Permissões customizadas
+│   └── urls.py         # URLs principais
+├── logs/               # Sistema de logs
+├── conftest.py         # Configurações do pytest
+├── docker-compose.yml  # Configuração Docker Compose
+├── Dockerfile          # Imagem Docker
+├── Makefile           # Comandos automatizados
+├── pyproject.toml     # Configurações Poetry
+└── README.md          # Este arquivo
+```
 
-A estrutura deste projeto será atualizado à medida que ele evolui.
+### Arquitetura
 
-Os apps do Django são:
+O projeto segue uma arquitetura modular onde cada app Django é responsável por um domínio específico:
 
-- actors
-- genres
-- movies
-- reviews
+- **Separação de responsabilidades**: Cada app tem sua própria lógica de negócio
+- **Modelos base**: Uso de `BaseModel` para campos comuns (UUID, timestamps, auditoria)
+- **Serviços**: Lógica de negócio complexa isolada em classes de serviço
+- **Permissões**: Sistema de permissões centralizado e reutilizável
 
-A pasta authentication contém apenas as views e rotas de gerenciamento de autenticação para gerar e atualizar tokens.
+## 🚀 Deploy
 
-Todas as rotas são precedidas de `/api/v1/nome_do_app/`
+### Docker Hub
 
-Este projeto foi desenvolvido com Sistema Operacional Linux Mint com a versão do python 3.11.0
+O projeto está configurado para publicação automática no Docker Hub através do GitHub Actions.
 
+```bash
+# Construir imagem para produção
+make build-image TAG=v1.0.0
 
-## Instalação
+# Publicar no Docker Hub
+make push TAG=v1.0.0
+```
 
+### GitHub Actions
 
-## Comandos Pré-Definidos do Makefile
+O projeto possui workflows configurados para:
 
+- **Quality Assurance**: Executa lint e testes em Pull Requests
+- **Docker Image Release**: Publica imagens Docker quando tags são criadas
+- **Publish**: Pipeline completo de validação e publicação
 
-## Testes
+### Variáveis de Ambiente para Produção
 
+Certifique-se de configurar as seguintes variáveis no ambiente de produção:
+
+```env
+DEBUG=False
+DJANGO_SECRET_KEY=chave-secreta-forte
+ALLOWED_HOSTS=seu-dominio.com
+# ... outras variáveis
+```
+
+## 🎓 Desafios e Soluções
+
+### 1. Migração de ID para UUID como Primary Key
+
+**Desafio**: Migrar todos os modelos de `id` (BigAutoField) para `uuid` (UUIDField) como chave primária, mantendo a integridade dos dados e relacionamentos.
+
+**Solução**:
+- Criação de migrações sequenciais que removem o campo `id` e adicionam `uuid`
+- Implementação de `BaseModel` com UUID como PK padrão
+- Migração especial para tabela intermediária ManyToMany (`movies_movie_actors`)
+- Atualização de todos os testes e serializers para usar `uuid` em vez de `id`
+
+**Lições Aprendidas**:
+- Em produção, seria necessário criar uma tabela de mapeamento manual
+- Abordagem mais segura: criar UUID como campo único primeiro, depois migrar gradualmente
+- Sempre fazer backup antes de migrações estruturais complexas
+
+### 2. Tabela Intermediária ManyToMany
+
+**Desafio**: A tabela intermediária `movies_movie_actors` mantinha referências `bigint` enquanto os modelos usavam UUID.
+
+**Solução**:
+- Criação de migração que remove constraints antigas
+- Limpeza da tabela (em desenvolvimento)
+- Recriação das colunas com tipo UUID
+- Recriação de todas as constraints e foreign keys
+
+### 3. Sistema de Permissões Customizado
+
+**Desafio**: Implementar um sistema de permissões granular baseado em modelos e ações.
+
+**Solução**:
+- Criação de `GlobalDefaultPermission` que verifica permissões Django padrão
+- Integração com sistema de grupos e permissões do Django
+- Reutilização em todas as views através de `permission_classes`
+
+### 4. Testes com Alta Cobertura
+
+**Desafio**: Manter cobertura de testes acima de 75% com testes significativos.
+
+**Solução**:
+- Uso de `Factory Boy` para criar fixtures de teste
+- Criação de `BaseAPITest` para testes de API reutilizáveis
+- Testes unitários para modelos, serializers e serviços
+- Testes de integração para views e endpoints
+
+### 5. CI/CD com GitHub Actions
+
+**Desafio**: Configurar pipeline completo de CI/CD com testes, lint e publicação de imagens.
+
+**Solução**:
+- Workflows separados para QA e publicação
+- Execução de testes em ambiente isolado com PostgreSQL
+- Publicação automática de imagens Docker no Docker Hub
+- Validação de qualidade antes de publicação
+
+## 🤝 Contribuindo
+
+Contribuições são bem-vindas! Para contribuir:
+
+1. Faça um fork do projeto
+2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
+3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
+4. Push para a branch (`git push origin feature/AmazingFeature`)
+5. Abra um Pull Request
+
+### Padrões de Código
+
+- Siga o estilo de código definido pelo Ruff
+- Execute `make lint` e `make format` antes de commitar
+- Mantenha a cobertura de testes acima de 75%
+- Escreva testes para novas funcionalidades
+
+## 👤 Autor
+
+**Willames Campos**
+
+- GitHub: [@WillamesCampos](https://github.com/WillamesCampos)
+- Email: willwjccampos@gmail.com
+
+## 🙏 Agradecimentos
+
+- Django e Django REST Framework pela excelente documentação
+- Comunidade Python/Django pelo suporte
+- Todos os mantenedores das bibliotecas open-source utilizadas
+
+---
+
+⭐ Se este projeto foi útil para você, considere dar uma estrela no repositório!
