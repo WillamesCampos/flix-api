@@ -16,7 +16,7 @@ class TestMovieModelSerializer:
         validated = serializer.validated_data
 
         assert movie_data['title'] == validated['title']
-        assert movie_data['genre'] == validated['genre'].id
+        assert str(movie_data['genre']) == str(validated['genre'].uuid)
         assert movie_data['release_date'] == validated['release_date'].strftime('%Y-%m-%d')
         assert movie_data['resume'] == validated['resume']
 

@@ -49,4 +49,7 @@ class TestModelMovie:
 
         # Check if the actors are correctly linked to the movie
         for actor in movie.actors.all():
-            assert movie in actor.movies.all()
+            actor_movies_uuids = list(actor.movies.values_list('uuid', flat=True))
+
+            actor_movies = list(map(str, actor_movies_uuids))
+            assert movie.uuid in actor_movies, f"Movie {movie} not found in actor's movies"

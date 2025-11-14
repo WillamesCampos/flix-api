@@ -180,7 +180,7 @@ class TestGenreAPI(BaseAPITest):
     def test_delete_genre_not_found(self):
         self.give_permissions(model=Genre)
 
-        url = reverse('genre-detail-view', kwargs={'pk': uuid.uuid4})
+        url = reverse('genre-detail-view', kwargs={'pk': uuid.uuid4()})
         response = self.client.delete(url, format='json')
         assert response.status_code == status.HTTP_404_NOT_FOUND
 

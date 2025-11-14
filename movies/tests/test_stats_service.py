@@ -16,9 +16,9 @@ class TestStatsService:
         movies_ids = []
         for index, movie in enumerate(movies):
             movie.reviews.set(list_review_factory[index])
-            movies_ids.append(movie.id)
+            movies_ids.append(movie.uuid)
 
-        service = self.service(queryset=Movie.objects.filter(id__in=movies_ids))
+        service = self.service(queryset=Movie.objects.filter(uuid__in=movies_ids))
         data = service.build_data()
 
         assert data['total_movies'] == len(movies)

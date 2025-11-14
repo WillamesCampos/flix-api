@@ -12,7 +12,7 @@ class MovieStatsService:
         return self.queryset.count()
 
     def __get_movies_by_genre(self) -> int:
-        return self.queryset.values('genre__name').annotate(count=Count('id'))
+        return self.queryset.values('genre__name').annotate(count=Count('uuid'))
 
     def __get_average_stars(self) -> float:
         result = Review.objects.aggregate(avg_stars=Avg('stars'))['avg_stars']

@@ -150,7 +150,7 @@ class TestMoviesAPI(BaseAPITest):
         response = self.client.delete(url)
 
         assert response.status_code == status.HTTP_204_NO_CONTENT, f'Expected 204 No Content, got {response.status_code}'
-        assert not Movie.objects.filter(id=movie.uuid).exists(), 'Movie should be deleted from the database'
+        assert not Movie.objects.filter(uuid=movie.uuid).exists(), 'Movie should be deleted from the database'
 
     def test_delete_movie_not_found(self):
         self.give_permissions(model=Movie)
@@ -165,7 +165,7 @@ class TestMoviesAPI(BaseAPITest):
         response = self.client.delete(url)
 
         assert response.status_code == status.HTTP_403_FORBIDDEN, 'Expected 403 Forbidden for user without access permission.'
-        assert Movie.objects.filter(id=movie.uuid).exists(), 'Movie should not be deleted from the database'
+        assert Movie.objects.filter(uuid=movie.uuid).exists(), 'Movie should not be deleted from the database'
 
     def test_delete_movie_user_not_authenticated(self, existing_movie):
         self.client.logout()
@@ -174,7 +174,7 @@ class TestMoviesAPI(BaseAPITest):
         response = self.client.delete(url)
 
         assert response.status_code == status.HTTP_401_UNAUTHORIZED, f'Expected 401 Unauthorized for unauthenticated user, got {response.status_code}'
-        assert Movie.objects.filter(id=movie.uuid).exists(), 'Movie should not be deleted from the database'
+        assert Movie.objects.filter(uuid=movie.uuid).exists(), 'Movie should not be deleted from the database'
 
 
 @pytest.mark.django_db
