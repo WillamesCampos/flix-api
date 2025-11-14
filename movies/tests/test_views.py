@@ -37,8 +37,7 @@ class TestMoviesAPI(BaseAPITest):
         response = self.client.get(url)
 
         assert response.status_code == status.HTTP_200_OK, f'Expected 200 OK, got {response.status_code}'
-        assert isinstance(response.data, list), 'Response data should be a list of movies'
-        assert len(response.data) == Movie.objects.count(), (
+        assert response.data['count'] == Movie.objects.count(), (
             'Response data length should match the number of movies \
         in the database'
         )

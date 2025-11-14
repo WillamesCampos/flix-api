@@ -33,13 +33,13 @@ class TestActorAPI(BaseAPITest):
         url = reverse('actor-create-list')
         response = self.client.get(url)
 
-        returned_names = {actor['name'] for actor in response.data}
+        returned_names = {actor['name'] for actor in response.data['results']}
         expected_names = set(Actor.objects.values_list('name', flat=True))
 
         assert returned_names == expected_names
 
         assert response.status_code == status.HTTP_200_OK
-        assert len(response.data) == Actor.objects.count()
+        assert response.data['count'] == Actor.objects.count()
 
     def test_list_actors_without_permissions(self):
         url = reverse('actor-create-list')

@@ -16,5 +16,8 @@ class Review(BaseModel):
     )
     comment = models.TextField(null=True, blank=True)
 
+    class Meta:
+        ordering = ['-created_at']
+
     def __str__(self):
         return f'{self.movie} - {self.stars} stars'

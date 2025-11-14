@@ -3,8 +3,8 @@ IMAGE_NAME ?= willamesdev/flix_api
 TAG ?= latest
 
 .PHONY: help
-help: ## Lista todos os comandos disponíveis
-	@echo "Comandos disponíveis:"
+help: ## List all available commands
+	@echo "Available commands:"
 	@echo ""
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
@@ -12,93 +12,93 @@ help: ## Lista todos os comandos disponíveis
 # DOCKER
 # =============================
 
-up: ## Inicia todos os serviços Docker
+up: ## Start all Docker services
 	docker compose up
 
-up-d: ## Inicia todos os serviços Docker em background
+up-d: ## Start all Docker services in background
 	docker compose up -d
 
-up-build: ## Constrói e inicia os serviços Docker
+up-build: ## Build and start Docker services
 	docker compose up --build
 
-down: ## Para e remove os serviços Docker
+down: ## Stop and remove Docker services
 	docker compose down
 
-logs: ## Mostra os logs dos serviços Docker
+logs: ## Show Docker services logs
 	docker compose logs -f
 
-build: ## Constrói a imagem Docker
+build: ## Build Docker image
 	docker compose build
 
-build-image: ## Constrói a imagem Docker para publicação
+build-image: ## Build Docker image for publishing
 	docker build -t $(IMAGE_NAME):$(TAG) -t $(IMAGE_NAME):latest .
 
-push: ## Publica a imagem Docker no registry
+push: ## Publish Docker image to registry
 	docker push $(IMAGE_NAME):$(TAG)
 	docker push $(IMAGE_NAME):latest
 
-destroy-db: ## Para e remove o container do banco de dados
+destroy-db: ## Stop and remove database container
 	docker stop flix_db || true
 	docker rm flix_db || true
 
-destroy-web: ## Para e remove o container da aplicação web
+destroy-web: ## Stop and remove web application container
 	docker stop flix_web || true
 	docker rm flix_web || true
 
-dev-db: ## Inicia apenas o banco de dados em background
+dev-db: ## Start only database in background
 	docker compose up flix_db -d
 
-dev-mongo: ## Inicia apenas o MongoDB em background
+dev-mongo: ## Start only MongoDB in background
 	docker compose up mongo -d
 
 # =============================
 # DJANGO
 # =============================
 
-migrate: ## Executa as migrações do Django
+migrate: ## Run Django migrations
 	docker compose exec -T flix_web python manage.py migrate
 
-makemigrations: ## Cria novas migrações do Django
+makemigrations: ## Create new Django migrations
 	docker compose exec -T flix_web python manage.py makemigrations
 
-run: ## Inicia o servidor de desenvolvimento Django (Docker)
+run: ## Start Django development server (Docker)
 	docker compose exec -T flix_web python manage.py runserver
 
-run-dev: ## Inicia o servidor de desenvolvimento Django (local)
+run-dev: ## Start Django development server (local)
 	python manage.py runserver
 
-shell: ## Abre o shell do Django (Docker)
+shell: ## Open Django shell (Docker)
 	docker compose exec flix_web python manage.py shell
 
-shell-dev: ## Abre o shell do Django (local)
+shell-dev: ## Open Django shell (local)
 	python manage.py shell
 
 # =============================
 # TESTING
 # =============================
 
-test: ## Executa os testes e gera relatório de coverage
+test: ## Run tests and generate coverage report
 	python -m pytest -vvv
 	coverage html
 
-test-docker: ## Executa os testes dentro do container Docker
+test-docker: ## Run tests inside Docker container
 	docker compose exec -T flix_web python -m pytest -vvv
 
-coverage: ## Mostra o relatório de coverage
+coverage: ## Show coverage report
 	coverage report
 
-coverage-html: ## Gera o relatório de coverage em HTML
+coverage-html: ## Generate HTML coverage report
 	coverage html
 
 # =============================
 # LINTING
 # =============================
 
-lint: ## Verifica o código com ruff
+lint: ## Check code with ruff
 	ruff check
 
-fix: ## Corrige problemas encontrados pelo ruff
+fix: ## Fix issues found by ruff
 	ruff check --fix
 
-format: ## Formata o código com ruff
+format: ## Format code with ruff
 	ruff format
