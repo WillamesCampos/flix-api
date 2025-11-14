@@ -1,10 +1,11 @@
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
+from core.models import BaseModel
 from movies.models import Movie
 
 
-class Review(models.Model):
+class Review(BaseModel):
     movie = models.ForeignKey(Movie, on_delete=models.PROTECT, related_name='reviews')
     stars = models.IntegerField(
         # Model validators

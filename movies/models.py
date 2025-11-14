@@ -1,10 +1,11 @@
 from django.db import models
 
 from actors.models import Actor
+from core.models import BaseModel
 from genres.models import Genre
 
 
-class Movie(models.Model):
+class Movie(BaseModel):
     title = models.CharField(max_length=500)
     genre = models.ForeignKey(
         Genre,

@@ -1,3 +1,5 @@
+import uuid
+
 import pytest
 from django.urls import reverse
 from rest_framework import status
@@ -11,7 +13,7 @@ from movies.tests.factories import MovieFactory
 def movie_data(genre_factory, list_of_actors_id_factory):
     return {
         'title': 'Inception',
-        'genre': genre_factory.id,
+        'genre': genre_factory.uuid,
         'release_date': '2010-07-16',
         'actors': list_of_actors_id_factory,
         'resume': 'A thief who steals corporate secrets through the use \
@@ -84,7 +86,7 @@ class TestMoviesAPI(BaseAPITest):
         self.give_permissions(model=Movie)
 
         movie = existing_movie
-        url = reverse('movie-detail-view', kwargs={'pk': movie.id})
+        url = reverse('movie-detail-view', kwargs={'pk': movie.uuid})
         response = self.client.get(url)
 
         assert response.status_code == status.HTTP_200_OK, f'Expected 200 OK, got {response.status_code}'
@@ -93,7 +95,7 @@ class TestMoviesAPI(BaseAPITest):
     def test_retrieve_movie_not_found(self):
         self.give_permissions(model=Movie)
 
-        url = reverse('movie-detail-view', kwargs={'pk': 9999})
+        url = reverse('movie-detail-view', kwargs={'pk': uuid.uuid4()})
         response = self.client.get(url)
         assert response.status_code == status.HTTP_404_NOT_FOUND, f'Expected 404 Not Found, got {response.status_code}'
 
@@ -103,7 +105,7 @@ class TestMoviesAPI(BaseAPITest):
         movie = existing_movie
         updated_data = {'title': 'Updated Title'}
 
-        url = reverse('movie-detail-view', kwargs={'pk': movie.id})
+        url = reverse('movie-detail-view', kwargs={'pk': movie.uuid})
         response = self.client.patch(url, updated_data)
 
         movie.refresh_from_db()
@@ -113,13 +115,13 @@ class TestMoviesAPI(BaseAPITest):
     def test_update_movie_not_found(self):
         self.give_permissions(model=Movie)
 
-        url = reverse('movie-detail-view', kwargs={'pk': 9999})
+        url = reverse('movie-detail-view', kwargs={'pk': uuid.uuid4()})
         response = self.client.patch(url, {'title': 'Updated Title'})
         assert response.status_code == status.HTTP_404_NOT_FOUND, f'Expected 404 Not Found, got {response.status_code}'
 
     def test_update_movie_without_permissions(self, existing_movie):
         movie = existing_movie
-        url = reverse('movie-detail-view', kwargs={'pk': movie.id})
+        url = reverse('movie-detail-view', kwargs={'pk': movie.uuid})
         response = self.client.patch(url, {'title': 'Updated Title'})
 
         assert response.status_code == status.HTTP_403_FORBIDDEN, 'Expected 403 Forbidden for user without access permission.'
@@ -133,7 +135,7 @@ class TestMoviesAPI(BaseAPITest):
         data = {'title': 'Updated Title'}
 
         movie = existing_movie
-        url = reverse('movie-detail-view', kwargs={'pk': movie.id})
+        url = reverse('movie-detail-view', kwargs={'pk': movie.uuid})
         response = self.client.patch(url, data)
 
         assert response.status_code == status.HTTP_401_UNAUTHORIZED, f'Expected 401 Unauthorized for unauthenticated user, got {response.status_code}'
@@ -144,35 +146,35 @@ class TestMoviesAPI(BaseAPITest):
         self.give_permissions(model=Movie)
 
         movie = existing_movie
-        url = reverse('movie-detail-view', kwargs={'pk': movie.id})
+        url = reverse('movie-detail-view', kwargs={'pk': movie.uuid})
         response = self.client.delete(url)
 
         assert response.status_code == status.HTTP_204_NO_CONTENT, f'Expected 204 No Content, got {response.status_code}'
-        assert not Movie.objects.filter(id=movie.id).exists(), 'Movie should be deleted from the database'
+        assert not Movie.objects.filter(uuid=movie.uuid).exists(), 'Movie should be deleted from the database'
 
     def test_delete_movie_not_found(self):
         self.give_permissions(model=Movie)
 
-        url = reverse('movie-detail-view', kwargs={'pk': 9999})
+        url = reverse('movie-detail-view', kwargs={'pk': uuid.uuid4()})
         response = self.client.delete(url)
         assert response.status_code == status.HTTP_404_NOT_FOUND, f'Expected 404 Not Found, got {response.status_code}'
 
     def test_delete_movie_without_permissions(self, existing_movie):
         movie = existing_movie
-        url = reverse('movie-detail-view', kwargs={'pk': movie.id})
+        url = reverse('movie-detail-view', kwargs={'pk': movie.uuid})
         response = self.client.delete(url)
 
         assert response.status_code == status.HTTP_403_FORBIDDEN, 'Expected 403 Forbidden for user without access permission.'
-        assert Movie.objects.filter(id=movie.id).exists(), 'Movie should not be deleted from the database'
+        assert Movie.objects.filter(uuid=movie.uuid).exists(), 'Movie should not be deleted from the database'
 
     def test_delete_movie_user_not_authenticated(self, existing_movie):
         self.client.logout()
         movie = existing_movie
-        url = reverse('movie-detail-view', kwargs={'pk': movie.id})
+        url = reverse('movie-detail-view', kwargs={'pk': movie.uuid})
         response = self.client.delete(url)
 
         assert response.status_code == status.HTTP_401_UNAUTHORIZED, f'Expected 401 Unauthorized for unauthenticated user, got {response.status_code}'
-        assert Movie.objects.filter(id=movie.id).exists(), 'Movie should not be deleted from the database'
+        assert Movie.objects.filter(uuid=movie.uuid).exists(), 'Movie should not be deleted from the database'
 
 
 @pytest.mark.django_db

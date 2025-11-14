@@ -14,6 +14,7 @@ class MovieFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Movie
 
+    uuid = factory.LazyAttribute(lambda x: faker_gen.uuid4())
     title = faker_gen.sentence(nb_words=3)
     genre = factory.SubFactory(GenreFactory)
     release_date = faker_gen.date(end_datetime=datetime.now())

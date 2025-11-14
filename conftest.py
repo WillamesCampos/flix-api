@@ -12,7 +12,7 @@ def genre_factory():
 
 @pytest.fixture
 def list_of_actors_id_factory():
-    return [ActorFactory().id for _ in range(3)]
+    return [ActorFactory().uuid for _ in range(3)]
 
 
 @pytest.fixture
@@ -24,7 +24,7 @@ def list_review_factory():
 def movie_data(genre_factory, list_of_actors_id_factory):
     return {
         'title': 'Inception',
-        'genre': genre_factory.id,
+        'genre': genre_factory.uuid,
         'release_date': '2010-07-16',
         'actors': list_of_actors_id_factory,
         'resume': 'A thief who steals corporate secrets through the use of dream-sharing technology \

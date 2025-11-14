@@ -9,7 +9,7 @@ urlpatterns = [
         name='review-create-list',
     ),
     path(
-        'reviews/<int:pk>/',
+        'reviews/<uuid:pk>/',
         views.ReviewRetrieveUpdateDestroyView.as_view(),
         name='review-detail-view',
     ),

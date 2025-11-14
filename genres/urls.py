@@ -9,7 +9,7 @@ urlpatterns = [
         name='genre-create-list',
     ),
     path(
-        'genres/<int:pk>/',
+        'genres/<uuid:pk>/',
         views.GenreRetrieveUpdateDestroyView.as_view(),
         name='genre-detail-view',
     ),
