@@ -24,9 +24,9 @@ class TestMovieListDetailSerializer:
 
         validated = serializer.data
 
-        assert validated['id'] == movie.id
+        assert validated['id'] == movie.uuid
         assert validated['title'] == movie.title
-        assert validated['genre']['id'] == movie.genre.id
+        assert validated['genre']['id'] == movie.genre.uuid
         assert validated['release_date'] == movie.release_date.strftime('%Y-%m-%d')
         assert validated['resume'] == movie.resume
         assert isinstance(validated['actors'], list)

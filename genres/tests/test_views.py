@@ -1,3 +1,5 @@
+import uuid
+
 import pytest
 from django.urls import reverse
 from rest_framework import status
@@ -114,7 +116,7 @@ class TestGenreAPI(BaseAPITest):
     def test_retrieve_genre_not_found(self):
         self.give_permissions(model=Genre)
 
-        url = reverse('genre-detail-view', kwargs={'pk': 9999})
+        url = reverse('genre-detail-view', kwargs={'pk': uuid.uuid4()})
         response = self.client.get(url, format='json')
         assert response.status_code == status.HTTP_404_NOT_FOUND
 
@@ -178,7 +180,7 @@ class TestGenreAPI(BaseAPITest):
     def test_delete_genre_not_found(self):
         self.give_permissions(model=Genre)
 
-        url = reverse('genre-detail-view', kwargs={'pk': 9999})
+        url = reverse('genre-detail-view', kwargs={'pk': uuid.uuid4})
         response = self.client.delete(url, format='json')
         assert response.status_code == status.HTTP_404_NOT_FOUND
 

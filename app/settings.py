@@ -96,17 +96,17 @@ LOGGING = {
             'stream': sys.stdout,
             'formatter': 'default',
         },
-        'mongo': {
-            '()': 'logs.handlers.create_mongo_handler',
-            'mongo_uri': MONGO_URI,
-            'db_name': os.environ.get('MONGO_INITDB_DATABASE'),
-            'collection': 'logs',
-            'formatter': 'default',
-        },
+        # 'mongo': {
+        #     '()': 'logs.handlers.create_mongo_handler',
+        #     'mongo_uri': MONGO_URI,
+        #     'db_name': os.environ.get('MONGO_INITDB_DATABASE'),
+        #     'collection': 'logs',
+        #     'formatter': 'default',
+        # },
     },
     'loggers': {
         'flix_api_logger': {
-            'handlers': ['console', 'mongo'],
+            'handlers': ['console'],
             'level': 'DEBUG' if DEBUG else 'INFO',
             'propagate': False,
         },

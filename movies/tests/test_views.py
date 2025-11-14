@@ -1,3 +1,5 @@
+import uuid
+
 import pytest
 from django.urls import reverse
 from rest_framework import status
@@ -93,7 +95,7 @@ class TestMoviesAPI(BaseAPITest):
     def test_retrieve_movie_not_found(self):
         self.give_permissions(model=Movie)
 
-        url = reverse('movie-detail-view', kwargs={'pk': 9999})
+        url = reverse('movie-detail-view', kwargs={'pk': uuid.uuid4()})
         response = self.client.get(url)
         assert response.status_code == status.HTTP_404_NOT_FOUND, f'Expected 404 Not Found, got {response.status_code}'
 
@@ -113,7 +115,7 @@ class TestMoviesAPI(BaseAPITest):
     def test_update_movie_not_found(self):
         self.give_permissions(model=Movie)
 
-        url = reverse('movie-detail-view', kwargs={'pk': 9999})
+        url = reverse('movie-detail-view', kwargs={'pk': uuid.uuid4()})
         response = self.client.patch(url, {'title': 'Updated Title'})
         assert response.status_code == status.HTTP_404_NOT_FOUND, f'Expected 404 Not Found, got {response.status_code}'
 
@@ -153,7 +155,7 @@ class TestMoviesAPI(BaseAPITest):
     def test_delete_movie_not_found(self):
         self.give_permissions(model=Movie)
 
-        url = reverse('movie-detail-view', kwargs={'pk': 9999})
+        url = reverse('movie-detail-view', kwargs={'pk': uuid.uuid4()})
         response = self.client.delete(url)
         assert response.status_code == status.HTTP_404_NOT_FOUND, f'Expected 404 Not Found, got {response.status_code}'
 

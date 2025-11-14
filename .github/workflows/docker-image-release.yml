@@ -24,9 +24,8 @@ jobs:
 
       - name: Build Docker Image
         run: |
-          make build TAG=${{ steps.tag.outputs.tag }}
+          make build-image TAG=${{ steps.tag.outputs.tag }}
 
       - name: Push Docker Image
         run: |
           make push TAG=${{ steps.tag.outputs.tag }}
-
