@@ -1,35 +1,47 @@
 from django.core.management.base import BaseCommand
 
+from core.utils.file_readers.csv_reader import CSVReader
+from core.utils.file_readers.excel_reader import ExcelReader
+from core.utils.file_readers.file_reader import FileReader
 from movies.services.import_service import MovieImportService
 
 
 class Command(BaseCommand):
-    help = 'Importa filmes de um arquivo CSV'
+    help = 'Import movies from a file'
+
+    def __map_file_reader(self, file_path: str) -> FileReader:
+        if file_path.endswith('.csv'):
+            return CSVReader()
+        elif file_path.endswith('.xlsx'):
+            return ExcelReader()
+        else:
+            raise ValueError(f'Invalid file extension: {file_path}')
 
     def add_arguments(self, parser) -> None:
-        parser.add_argument('file_name', type=str, help='Nome do arquivo CSV com filmes.')
+        parser.add_argument('file_path', type=str, help='Path to the CSV file with movies.')
         return super().add_arguments(parser)
 
     def handle(self, *args, **kwargs):
-        file_name = kwargs['file_name']
-        service = MovieImportService(file_name)
+        file_path = kwargs['file_path']
+
+        file_reader = self.__map_file_reader(file_path)
+        service = MovieImportService(file_path=file_path, file_reader=file_reader)
         result = service.import_movies()
 
         created_count = result['created_count']
         skipped_count = result['skipped_count']
         errors = result['errors']
 
-        # Resumo
         self.stdout.write(self.style.SUCCESS(f'\n{"=" * 50}'))
-        self.stdout.write(self.style.SUCCESS('RESUMO DA IMPORTAÇÃO'))
+        self.stdout.write(self.style.SUCCESS('IMPORTATION SUMMARY'))
         self.stdout.write(self.style.SUCCESS(f'{"=" * 50}'))
-        self.stdout.write(self.style.SUCCESS(f'Filmes criados: {created_count}'))
-        self.stdout.write(self.style.WARNING(f'Filmes ignorados: {skipped_count}'))
+        self.stdout.write(self.style.SUCCESS(f'Movies created: {created_count}'))
+        self.stdout.write(self.style.WARNING(f'Movies skipped: {skipped_count}'))
 
         if errors:
-            self.stdout.write(self.style.ERROR('\nERROS ENCONTRADOS:'))
+            self.stdout.write(self.style.ERROR('\nERRORS FOUND:'))
             for error in errors:
                 self.stdout.write(self.style.ERROR(f'  - {error}'))
 
         if created_count > 0:
-            self.stdout.write(self.style.SUCCESS('\nFILMES IMPORTADOS COM SUCESSO!'))
+            self.stdout.write(self.style.SUCCESS('\nMOVIES IMPORTED SUCCESSFULLY!'))
