@@ -1,5 +1,6 @@
 from django.db.models import Avg, Count, QuerySet
 
+from app.settings import logger
 from reviews.models import Review
 
 
@@ -25,6 +26,13 @@ class MovieStatsService:
         return average_stars if average_stars else 0
 
     def build_data(self):
+        logger_data = {
+            'service': 'MovieStatsService',
+            'method': 'build_data',
+            'queryset_count': self.queryset.count(),
+        }
+        logger.info(logger_data)
+
         data = {
             'total_movies': self.__get_total_movies(),
             'movies_by_genre': self.__get_movies_by_genre(),

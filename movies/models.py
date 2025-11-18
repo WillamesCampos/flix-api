@@ -19,5 +19,8 @@ class Movie(BaseModel):
     )
     resume = models.TextField(null=True, blank=True)
 
+    class Meta:
+        ordering = ['title']
+
     def __str__(self):
         return self.title

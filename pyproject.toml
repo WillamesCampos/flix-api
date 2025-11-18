@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "flix-api"
 version = "0.1.0"
-description = "Projeto do curso Django Master para aprendizagem de desenvolvimento de APIs"
+description = "Flix API Movie Management"
 authors = ["WillamesCampos <willwjccampos@gmail.com>"]
 readme = "README.md"
 
@@ -13,6 +13,8 @@ python-dotenv = "^1.1.0"
 djangorestframework-simplejwt = "^5.5.0"
 psycopg2-binary = "^2.9.10"
 pymongo = "^4.14.0"
+pandas = "^2.3.3"
+openpyxl = "^3.1.5"
 
 
 [tool.poetry.group.group_dev.dependencies]
@@ -49,12 +51,19 @@ addopts = [
 [tool.coverage.run]
 omit = [
     "manage.py",
+    "*/__init__.py",
     "*/migrations/*",
-    "*/tests/*",
+    "*/management/*",
+    "conftest.py",
     "*/settings.py",
     "*/admin.py",
     "*/wsgi.py",
-    "*/asgi.py"
+    "*/asgi.py",
+    "app/test_settings.py",
+    "app/tests_permissions.py",
+    "*/test",
+    "*/tests/*",
+    "*/tests.py",
 ]
 
 # onde o pytest deve buscar os testes
@@ -87,7 +96,7 @@ extend-exclude = [
 
 [tool.ruff.lint]
 preview = true
-ignore = ['PT001', 'PT023', 'PLR0913', 'PLR6301', 'PLR0904']
+ignore = ['PT001', 'PT023', 'PLR0913', 'PLR6301', 'PLR0904', 'PLR2004']
 select = [
     'I', # Isort - Checagem de ordenação de imports em ordem alfabética
     'F', # Pyflakes - Procura por alguns erros em relação a boas práticas de código

@@ -13,7 +13,9 @@ htmlcov
 
 db.sqlite3
 .postgres_data
+.mongo_data
 
 tempfiles
 
+ai_context
 .gitignore

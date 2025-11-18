@@ -41,7 +41,9 @@ Flix API é uma aplicação backend completa para gerenciamento de um catálogo 
 
 ### Funcionalidades Especiais
 - 📊 **Estatísticas de Filmes**: Endpoint dedicado para estatísticas agregadas
-- 📥 **Importação de Atores**: Comando Django para importar atores via arquivo CSV
+- 📥 **Importação via CSV**: Comandos Django para importar atores e filmes via arquivos CSV
+  - Veja [Formato CSV de Atores](instructions/import_csv/actors.md)
+  - Veja [Formato CSV de Filmes](instructions/import_csv/movies.md)
 - 🔐 **Autenticação JWT**: Sistema completo de autenticação com tokens
 - 🛡️ **Sistema de Permissões**: Permissões granulares baseadas em modelos e ações
 
@@ -202,11 +204,23 @@ curl -X GET http://localhost:8000/api/v1/movies/ \
 - `PATCH /api/v1/reviews/{uuid}/` - Atualiza uma avaliação
 - `DELETE /api/v1/reviews/{uuid}/` - Remove uma avaliação
 
-### Importação de Atores
+### Comandos de Importação CSV
+
+#### Importar Atores
 
 ```bash
 python manage.py import_actors caminho/para/arquivo.csv
 ```
+
+Para o formato do arquivo CSV, veja [instructions/import_csv/actors.md](instructions/import_csv/actors.md)
+
+#### Importar Filmes
+
+```bash
+python manage.py import_movies caminho/para/arquivo.csv
+```
+
+Para o formato do arquivo CSV, veja [instructions/import_csv/movies.md](instructions/import_csv/movies.md)
 
 ## 🛠️ Comandos Makefile
 
