@@ -1,3 +1,7 @@
+<div align="center">
+  <img width="250" height="250" alt="Flix API Logo" src="https://github.com/user-attachments/assets/440f8f65-1f9e-4a9a-98e7-1cfd1a73f8e6" />
+</div>
+
 # 🎬 Flix API
 
 > **🇧🇷 Portuguese Version Available**: [README_ptBR.md](README_ptBR.md)
