@@ -73,3 +73,6 @@ class ReviewEmailNotificationService(EmailService):
             }
             logger.error(logger_data, exc_info=True)
             raise e
+
+
+review_email_notification_service = ReviewEmailNotificationService()
