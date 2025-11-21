@@ -434,6 +434,85 @@ ALLOWED_HOSTS=your-domain.com
 - Automatic Docker image publishing to Docker Hub
 - Quality validation before publishing
 
+### 6. Asynchronous Tasks with Celery and Redis
+
+**Challenge**: Implement email notifications when reviews are created without blocking the API response.
+
+**Solution**:
+- **Celery** for asynchronous task execution
+- **Redis** as message broker between Django and Celery workers
+- **Django Signals** to automatically trigger tasks when reviews are created
+- Separate Docker containers for web application and Celery worker
+
+**Key Learnings**:
+
+**Celery Configuration**:
+- Celery must be initialized in `app/celery.py` and imported in `app/__init__.py` to ensure it loads with Django
+- Use `@shared_task` decorator for tasks that can be reused across apps
+- Configure Celery settings in Django settings with `CELERY_` prefix
+- Use `CELERY_BROKER_URL` and `CELERY_RESULT_BACKEND` pointing to Redis
+
+**Redis as Message Broker**:
+- Redis acts as a queue: Django puts tasks in, Celery workers take them out
+- Fast and reliable for task queuing
+- Use service name in Docker Compose (`redis://redis:6379/0`) instead of `localhost`
+
+**Django Signals Integration**:
+- Signals allow automatic actions when models are saved
+- Use `@receiver(post_save, sender=Model)` to listen to model events
+- Always wrap signal handlers in try-except to prevent errors from breaking the main request
+- Register signals in `apps.py` with `ready()` method to ensure they load
+
+**Docker Compose for Multiple Services**:
+- Separate Dockerfiles for different services (web vs worker) optimize builds
+- Use `depends_on` to ensure services start in order
+- Share environment variables but configure service-specific ones
+- Use entrypoint scripts to wait for dependencies (Postgres, Redis) before starting
+
+**Best Practices**:
+- Always pass serializable data to Celery tasks (UUIDs as strings, not objects)
+- Use `task.delay()` for async execution, `task.apply_async()` for advanced options
+- Log task execution and errors for debugging
+- Test Celery locally with `--pool=solo` for debugging
+
+### 7. Docker Compose Orchestration
+
+**Challenge**: Coordinate multiple services (Django, PostgreSQL, MongoDB, Redis, Celery) with proper dependencies and initialization order.
+
+**Solution**:
+- Use Docker Compose to define all services in one file
+- Implement health checks for databases
+- Create entrypoint scripts that wait for dependencies
+- Use named volumes for data persistence
+
+**Key Learnings**:
+
+**Service Dependencies**:
+- `depends_on` ensures services start in order, but doesn't wait for them to be ready
+- Use entrypoint scripts with `nc` (netcat) to check if services are actually ready
+- Health checks help Docker know when services are operational
+
+**Environment Variables**:
+- Use `.env` file for secrets (never commit it)
+- Pass environment variables through `docker-compose.yml`
+- Use service names for inter-service communication (`flix_db`, `redis`, not `localhost`)
+
+**Entrypoint Scripts**:
+- Entrypoint scripts run before the main command
+- Use them to run migrations, wait for dependencies, or set up the environment
+- Always use `exec` for the final command to ensure proper signal handling
+- Copy entrypoint scripts AFTER `COPY . .` to preserve permissions
+
+**Volume Management**:
+- Named volumes persist data even if containers are removed
+- Use volumes for databases to avoid data loss
+- Different volumes for different services prevent conflicts
+
+**Logging**:
+- Suppress logs from infrastructure services (databases) using `logging: driver: "none"`
+- Keep application logs visible for debugging
+- Use `docker compose logs -f service_name` to follow specific service logs
+
 ## 🤝 Contributing
 
 Contributions are welcome! To contribute:

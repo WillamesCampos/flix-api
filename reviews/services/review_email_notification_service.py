@@ -26,8 +26,7 @@ class ReviewEmailNotificationService(EmailService):
             'review_stars': review.stars,
             'review_created_at': review.created_at,
             'review_updated_at': review.updated_at,
-            'review_created_by': review.created_by,
-            'review_updated_by': review.updated_by,
+            'review_created_by': review.created_by.email if review.created_by else None,
         }
         logger.info(logger_data)
 

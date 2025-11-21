@@ -9,6 +9,10 @@ class ReviewSerializer(serializers.ModelSerializer):
         model = Review
         fields = '__all__'
 
+    def create(self, validated_data):
+        validated_data['created_by'] = self.context['request'].user
+        return super().create(validated_data)
+
 
 class ReviewUpdateSerializer(serializers.ModelSerializer):
     movie = serializers.PrimaryKeyRelatedField(queryset=Movie.objects.all(), required=False)
@@ -16,3 +20,7 @@ class ReviewUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
         fields = '__all__'
+
+    def update(self, instance, validated_data):
+        validated_data['updated_by'] = self.context['request'].user
+        return super().update(instance, validated_data)
