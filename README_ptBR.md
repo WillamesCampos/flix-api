@@ -433,6 +433,85 @@ ALLOWED_HOSTS=seu-dominio.com
 - Publicação automática de imagens Docker no Docker Hub
 - Validação de qualidade antes de publicação
 
+### 6. Tarefas Assíncronas com Celery e Redis
+
+**Desafio**: Implementar notificações por email quando avaliações são criadas sem bloquear a resposta da API.
+
+**Solução**:
+- **Celery** para execução assíncrona de tarefas
+- **Redis** como message broker entre Django e workers do Celery
+- **Django Signals** para disparar tarefas automaticamente quando avaliações são criadas
+- Containers Docker separados para aplicação web e worker do Celery
+
+**Lições Aprendidas**:
+
+**Configuração do Celery**:
+- O Celery deve ser inicializado em `app/celery.py` e importado em `app/__init__.py` para garantir que carregue com o Django
+- Use o decorador `@shared_task` para tarefas que podem ser reutilizadas entre apps
+- Configure as settings do Celery no Django settings com prefixo `CELERY_`
+- Use `CELERY_BROKER_URL` e `CELERY_RESULT_BACKEND` apontando para Redis
+
+**Redis como Message Broker**:
+- Redis atua como uma fila: Django coloca tarefas, workers do Celery pegam
+- Rápido e confiável para enfileiramento de tarefas
+- Use o nome do serviço no Docker Compose (`redis://redis:6379/0`) em vez de `localhost`
+
+**Integração com Django Signals**:
+- Signals permitem ações automáticas quando modelos são salvos
+- Use `@receiver(post_save, sender=Model)` para escutar eventos do modelo
+- Sempre envolva handlers de signals em try-except para evitar que erros quebrem a requisição principal
+- Registre signals em `apps.py` com método `ready()` para garantir que carreguem
+
+**Docker Compose para Múltiplos Serviços**:
+- Dockerfiles separados para serviços diferentes (web vs worker) otimizam builds
+- Use `depends_on` para garantir que serviços iniciem na ordem correta
+- Compartilhe variáveis de ambiente mas configure as específicas de cada serviço
+- Use scripts de entrypoint para aguardar dependências (Postgres, Redis) antes de iniciar
+
+**Boas Práticas**:
+- Sempre passe dados serializáveis para tarefas Celery (UUIDs como strings, não objetos)
+- Use `task.delay()` para execução assíncrona, `task.apply_async()` para opções avançadas
+- Registre execução e erros de tarefas para debugging
+- Teste Celery localmente com `--pool=solo` para debugging
+
+### 7. Orquestração com Docker Compose
+
+**Desafio**: Coordenar múltiplos serviços (Django, PostgreSQL, MongoDB, Redis, Celery) com dependências corretas e ordem de inicialização.
+
+**Solução**:
+- Use Docker Compose para definir todos os serviços em um arquivo
+- Implemente health checks para bancos de dados
+- Crie scripts de entrypoint que aguardam dependências
+- Use volumes nomeados para persistência de dados
+
+**Lições Aprendidas**:
+
+**Dependências entre Serviços**:
+- `depends_on` garante que serviços iniciem na ordem, mas não espera que estejam prontos
+- Use scripts de entrypoint com `nc` (netcat) para verificar se serviços estão realmente prontos
+- Health checks ajudam o Docker a saber quando serviços estão operacionais
+
+**Variáveis de Ambiente**:
+- Use arquivo `.env` para secrets (nunca commite)
+- Passe variáveis de ambiente através do `docker-compose.yml`
+- Use nomes de serviços para comunicação entre serviços (`flix_db`, `redis`, não `localhost`)
+
+**Scripts de Entrypoint**:
+- Scripts de entrypoint rodam antes do comando principal
+- Use-os para rodar migrações, aguardar dependências ou configurar o ambiente
+- Sempre use `exec` para o comando final para garantir tratamento adequado de sinais
+- Copie scripts de entrypoint DEPOIS de `COPY . .` para preservar permissões
+
+**Gerenciamento de Volumes**:
+- Volumes nomeados persistem dados mesmo se containers forem removidos
+- Use volumes para bancos de dados para evitar perda de dados
+- Volumes diferentes para serviços diferentes previnem conflitos
+
+**Logging**:
+- Suprima logs de serviços de infraestrutura (bancos de dados) usando `logging: driver: "none"`
+- Mantenha logs da aplicação visíveis para debugging
+- Use `docker compose logs -f nome_servico` para seguir logs de serviços específicos
+
 ## 🤝 Contribuindo
 
 Contribuições são bem-vindas! Para contribuir:
