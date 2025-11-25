@@ -11,6 +11,11 @@ from reviews.tests.factories import ReviewFactory
 User = get_user_model()
 
 
+@pytest.fixture(autouse=True)
+def mock_review_signal_email_notification(mocker):
+    mocker.patch('reviews.signals.send_review_email_notification_signal')
+
+
 @pytest.fixture
 def genre_factory():
     return GenreFactory()

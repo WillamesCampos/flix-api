@@ -1,4 +1,5 @@
 import uuid
+from unittest.mock import patch
 
 import pytest
 from django.urls import reverse
@@ -81,6 +82,27 @@ class TestMoviesAPI(BaseAPITest):
         assert response.status_code == status.HTTP_401_UNAUTHORIZED, f'Expected 401 Unauthorized for unauthenticated user, got {response.status_code}'
         assert not Movie.objects.filter(title=movie_data['title']).exists(), 'Movie should not be created in the database'
 
+    def test_create_movie_with_ai_description_generates_resume(self, movie_data):
+        self.give_permissions(model=Movie)
+        expected_description = 'AI generated resume'
+
+        url = reverse('movie-create-list')
+        with patch(
+            'movies.views.MovieSuggestorDescriptionMixin.suggest_description',
+            return_value=expected_description,
+        ) as mock_suggest_description:
+            payload = movie_data.copy()
+            payload['ai_description'] = True
+            response = self.client.post(url, payload)
+
+        assert response.status_code == status.HTTP_201_CREATED
+        mock_suggest_description.assert_called_once()
+
+        created_movie = Movie.objects.get(title=movie_data['title'])
+        created_movie.refresh_from_db()
+        assert created_movie.resume == expected_description
+        assert response.data['description'] == expected_description
+
     def test_retrieve_movie_success(self, existing_movie):
         self.give_permissions(model=Movie)
 
@@ -140,6 +162,24 @@ class TestMoviesAPI(BaseAPITest):
         assert response.status_code == status.HTTP_401_UNAUTHORIZED, f'Expected 401 Unauthorized for unauthenticated user, got {response.status_code}'
         movie.refresh_from_db()
         assert movie.title == existing_movie.title, 'Movie title should not be updated in the database'
+
+    def test_update_movie_with_ai_description_overwrites_resume(self, existing_movie):
+        self.give_permissions(model=Movie)
+        expected_description = 'Updated by AI'
+
+        url = reverse('movie-detail-view', kwargs={'pk': existing_movie.uuid})
+        with patch(
+            'movies.views.MovieSuggestorDescriptionMixin.suggest_description',
+            return_value=expected_description,
+        ) as mock_suggest_description:
+            response = self.client.patch(url, {'ai_description': True})
+
+        assert response.status_code == status.HTTP_200_OK
+        mock_suggest_description.assert_called_once()
+
+        existing_movie.refresh_from_db()
+        assert existing_movie.resume == expected_description
+        assert response.data['resume'] == expected_description
 
     def test_delete_movie_success(self, existing_movie):
         self.give_permissions(model=Movie)
@@ -214,3 +254,22 @@ class TestMovieStatsAPI(BaseAPITest):
         assert not response.data['movies_by_genre'], 'Movies by genre should be empty when no movies exist'
         assert response.data['total_reviews'] == 0, 'Total reviews should be 0 when no movies exist'
         assert response.data['average_stars'] == 0.0, 'Average stars should be 0.0 when no movies exist'
+
+
+@pytest.mark.django_db
+class TestMovieSuggestorDescriptionAPI(BaseAPITest):
+    def test_suggest_description_endpoint_returns_ai_text(self):
+        self.give_permissions(model=Movie)
+        movie = MovieFactory()
+        expected_description = 'Preview from AI'
+
+        url = reverse('movie-suggestor-description-view')
+        with patch(
+            'movies.views.MovieSuggestorDescriptionMixin.suggest_description',
+            return_value=expected_description,
+        ) as mock_suggest_description:
+            response = self.client.post(url, {'movie_uuid': str(movie.uuid)})
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data['description'] == expected_description
+        mock_suggest_description.assert_called_once()

@@ -18,4 +18,9 @@ urlpatterns = [
         views.MovieStatsView.as_view(),
         name='movie-stats-view',
     ),
+    path(
+        'movies/suggest-description/',
+        views.MovieSuggestorDescriptionView.as_view(),
+        name='movie-suggestor-description-view',
+    ),
 ]

@@ -25,6 +25,11 @@ def log_request(func):
             'content_type': request.content_type,
         }
         logger.info(logger_data)
-        return func(self, request, *args, **kwargs)
+
+        try:
+            return func(self, request, *args, **kwargs)
+        except Exception as e:
+            logger.error(logger_data, exc_info=True)
+            raise e
 
     return wrapper

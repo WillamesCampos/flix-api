@@ -18,4 +18,13 @@ DATABASES = {
 }
 EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
 
+# Disable celery
+CELERY_TASK_ALWAYS_EAGER = True
+CELERY_TASK_EAGER_PROPAGATES = True
+CELERY_BROKER_URL = 'memory://'
+CELERY_RESULT_BACKEND = 'cache'
+CELERY_CACHE_BACKEND = 'memory'
+
+
+# Disable logging
 LOGGING = {}
