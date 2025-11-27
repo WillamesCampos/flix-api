@@ -50,6 +50,8 @@ Flix API é uma aplicação backend completa para gerenciamento de um catálogo 
   - Veja [Formato CSV de Filmes](instructions/import_csv/movies.md)
 - 🔐 **Autenticação JWT**: Sistema completo de autenticação com tokens
 - 🛡️ **Sistema de Permissões**: Permissões granulares baseadas em modelos e ações
+- 📄 **Paginação**: Paginação customizada com tamanho de página configurável (10 itens por página, máx 50)
+- 🤖 **Sugestões de Descrição com IA**: Gera descrições de filmes usando modelos OpenAI GPT através do padrão adapter
 
 ## 🧰 Tecnologias
 
@@ -58,6 +60,7 @@ Flix API é uma aplicação backend completa para gerenciamento de um catálogo 
 - **Django 5.2.1** - Framework web
 - **Django REST Framework 3.16.0** - Framework para APIs REST
 - **Django REST Framework Simple JWT 5.5.0** - Autenticação JWT
+- **OpenAI** - Integração com IA para geração de descrições
 
 ### Banco de Dados
 - **PostgreSQL** - Banco de dados relacional principal
@@ -95,7 +98,13 @@ cd flix-api
 
 ### 2. Configure as variáveis de ambiente
 
-Crie um arquivo `.env` na raiz do projeto com as seguintes variáveis:
+Copie o arquivo `.env.example` para `.env` e preencha os valores:
+
+```bash
+cp .env.example .env
+```
+
+Em seguida, edite o arquivo `.env` com seus valores reais. Veja o `.env.example` para todas as variáveis de ambiente disponíveis. Aqui estão as principais variáveis necessárias:
 
 ```env
 # Django
@@ -115,6 +124,9 @@ MONGO_INITDB_ROOT_USERNAME=root
 MONGO_INITDB_ROOT_PASSWORD=sua-senha-mongo
 MONGO_INITDB_DATABASE=flix_logs
 MONGO_URI=mongodb://root:sua-senha-mongo@mongo:27017/flix_logs?authSource=admin
+
+# OpenAI (para sugestões de descrição com IA)
+OPENAI_API_KEY=sua-chave-api-openai-aqui
 ```
 
 ### 3. Instale as dependências
@@ -180,12 +192,15 @@ curl -X GET http://localhost:8000/api/v1/movies/ \
 ### Endpoints Principais
 
 #### Movies
-- `GET /api/v1/movies/` - Lista todos os filmes
+- `GET /api/v1/movies/` - Lista todos os filmes (paginado)
 - `POST /api/v1/movies/` - Cria um novo filme
+  - Opcional: `ai_description=true` para gerar descrição com IA
 - `GET /api/v1/movies/{uuid}/` - Detalhes de um filme
 - `PATCH /api/v1/movies/{uuid}/` - Atualiza um filme
+  - Opcional: `ai_description=true` para regenerar descrição com IA
 - `DELETE /api/v1/movies/{uuid}/` - Remove um filme
 - `GET /api/v1/movies/stats/` - Estatísticas dos filmes
+- `POST /api/v1/movies/suggest-description/` - Obtém sugestão de descrição gerada por IA para um filme
 
 #### Actors
 - `GET /api/v1/actors/` - Lista todos os atores
@@ -207,6 +222,39 @@ curl -X GET http://localhost:8000/api/v1/movies/ \
 - `GET /api/v1/reviews/{uuid}/` - Detalhes de uma avaliação
 - `PATCH /api/v1/reviews/{uuid}/` - Atualiza uma avaliação
 - `DELETE /api/v1/reviews/{uuid}/` - Remove uma avaliação
+
+### Paginação
+
+Todos os endpoints de listagem suportam paginação com os seguintes parâmetros de query:
+- `page`: Número da página (padrão: 1)
+- `page_size`: Itens por página (padrão: 10, máx: 50)
+
+Exemplo:
+```bash
+curl -X GET "http://localhost:8000/api/v1/movies/?page=2&page_size=20" \
+  -H "Authorization: Bearer seu-token-aqui"
+```
+
+### Sugestões de Descrição com IA
+
+Gere descrições de filmes usando OpenAI:
+
+```bash
+# Obter uma sugestão de descrição para um filme
+curl -X POST http://localhost:8000/api/v1/movies/suggest-description/ \
+  -H "Authorization: Bearer seu-token-aqui" \
+  -H "Content-Type: application/json" \
+  -d '{"movie_uuid": "uuid-do-filme-aqui"}'
+
+# Ou criar/atualizar um filme com descrição gerada por IA
+curl -X POST http://localhost:8000/api/v1/movies/ \
+  -H "Authorization: Bearer seu-token-aqui" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Inception",
+    "ai_description": true
+  }'
+```
 
 ### Comandos de Importação CSV
 
@@ -235,16 +283,18 @@ O projeto possui um Makefile completo para facilitar o desenvolvimento. Execute 
 ```bash
 make up              # Inicia todos os serviços Docker
 make up-d            # Inicia todos os serviços Docker em background
-make up-build         # Constrói e inicia os serviços Docker
+make up-build        # Constrói e inicia os serviços Docker
 make down             # Para e remove os serviços Docker
-make logs             # Mostra os logs dos serviços Docker
-make build            # Constrói a imagem Docker
-make build-image      # Constrói a imagem Docker para publicação
-make push             # Publica a imagem Docker no registry
-make dev-db           # Inicia apenas o banco de dados em background
-make dev-mongo        # Inicia apenas o MongoDB em background
-make destroy-db       # Para e remove o container do banco de dados
-make destroy-web      # Para e remove o container da aplicação web
+make logs            # Mostra os logs dos serviços Docker
+make build           # Constrói a imagem Docker
+make build-image     # Constrói a imagem Docker para publicação
+make push            # Publica a imagem Docker no registry
+make dev-db          # Inicia apenas o banco de dados em background
+make dev-mongo       # Inicia apenas o MongoDB em background
+make dev-celery      # Inicia apenas o worker Celery em background
+make dev             # Inicia serviços de desenvolvimento (db, mongo, celery)
+make destroy-db      # Para e remove o container do banco de dados
+make destroy-web     # Para e remove o container da aplicação web
 ```
 
 ### Django
@@ -308,31 +358,55 @@ make coverage-html   # Relatório HTML em htmlcov/
 
 ```
 flix-api/
-├── actors/              # App de Atores
-│   ├── management/      # Comandos Django customizados
-│   ├── migrations/      # Migrações do banco de dados
-│   ├── tests/          # Testes do app
-│   ├── models.py       # Modelos de dados
-│   ├── serializers.py  # Serializers da API
-│   ├── views.py        # Views da API
-│   └── urls.py         # Rotas do app
-├── genres/             # App de Gêneros
-├── movies/              # App de Filmes
-│   └── services/        # Serviços de negócio
-├── reviews/            # App de Avaliações
-├── authentication/     # Autenticação JWT
-├── core/               # Modelos base compartilhados
-├── app/                # Configurações principais
-│   ├── settings.py     # Configurações do Django
-│   ├── permissions.py  # Permissões customizadas
-│   └── urls.py         # URLs principais
-├── logs/               # Sistema de logs
-├── conftest.py         # Configurações do pytest
-├── docker-compose.yml  # Configuração Docker Compose
-├── Dockerfile          # Imagem Docker
-├── Makefile           # Comandos automatizados
-├── pyproject.toml     # Configurações Poetry
-└── README.md          # Este arquivo
+├── apps/
+│   ├── actors/              # App de Atores
+│   │   ├── management/      # Comandos Django customizados
+│   │   ├── migrations/      # Migrações do banco de dados
+│   │   ├── services/        # Serviços de negócio
+│   │   ├── tests/           # Testes do app
+│   │   ├── models.py        # Modelos de dados
+│   │   ├── serializers.py   # Serializers da API
+│   │   ├── views.py         # Views da API
+│   │   └── urls.py          # Rotas do app
+│   ├── genres/              # App de Gêneros
+│   ├── movies/              # App de Filmes
+│   │   ├── mixins/          # Mixins reutilizáveis
+│   │   │   ├── audit_entity_mixin.py
+│   │   │   └── movie_suggestor_description_mixin.py
+│   │   ├── services/        # Serviços de negócio
+│   │   │   ├── import_service.py
+│   │   │   ├── movie_suggestor_description_service.py
+│   │   │   └── stats_service.py
+│   │   ├── management/      # Comandos Django customizados
+│   │   └── tests/           # Testes do app
+│   ├── reviews/             # App de Avaliações
+│   │   ├── services/        # Serviços de negócio
+│   │   ├── signals.py       # Signals do Django
+│   │   └── tasks.py         # Tarefas Celery
+│   ├── authentication/      # Autenticação JWT
+│   ├── core/                # Utilitários compartilhados
+│   │   ├── adapters/        # Implementações do padrão adapter
+│   │   │   └── ai_adapters/ # Adaptadores de serviços de IA
+│   │   │       ├── base.py  # Interface abstrata do adapter
+│   │   │       └── open_ai_adapter.py
+│   │   ├── services/        # Serviços compartilhados
+│   │   └── models.py        # Modelos base
+│   └── logs/                # Sistema de logs
+├── app/                     # Configurações principais
+│   ├── settings.py          # Configurações do Django
+│   ├── permissions.py       # Permissões customizadas
+│   ├── pagination.py        # Paginação customizada
+│   ├── decorators.py        # Decorators de logging de requisições
+│   ├── celery.py            # Configuração do Celery
+│   └── urls.py              # URLs principais
+├── infrastructure/          # Configuração Docker
+│   ├── docker-compose.yml
+│   ├── Dockerfile
+│   └── Dockerfile.celery
+├── conftest.py              # Configurações do pytest
+├── Makefile                 # Comandos automatizados
+├── pyproject.toml          # Configurações Poetry
+└── README.md               # Este arquivo
 ```
 
 ### Arquitetura
@@ -343,6 +417,8 @@ O projeto segue uma arquitetura modular onde cada app Django é responsável por
 - **Modelos base**: Uso de `BaseModel` para campos comuns (UUID, timestamps, auditoria)
 - **Serviços**: Lógica de negócio complexa isolada em classes de serviço
 - **Permissões**: Sistema de permissões centralizado e reutilizável
+- **Mixins**: Comportamento reutilizável através de classes mixin (ex: `MovieSuggestorDescriptionMixin`)
+- **Padrão Adapter**: Integração com serviços de IA através do padrão adapter para flexibilidade e testabilidade
 
 ## 🚀 Deploy
 
@@ -444,35 +520,10 @@ ALLOWED_HOSTS=seu-dominio.com
 - Containers Docker separados para aplicação web e worker do Celery
 
 **Lições Aprendidas**:
-
-**Configuração do Celery**:
-- O Celery deve ser inicializado em `app/celery.py` e importado em `app/__init__.py` para garantir que carregue com o Django
-- Use o decorador `@shared_task` para tarefas que podem ser reutilizadas entre apps
-- Configure as settings do Celery no Django settings com prefixo `CELERY_`
-- Use `CELERY_BROKER_URL` e `CELERY_RESULT_BACKEND` apontando para Redis
-
-**Redis como Message Broker**:
-- Redis atua como uma fila: Django coloca tarefas, workers do Celery pegam
-- Rápido e confiável para enfileiramento de tarefas
-- Use o nome do serviço no Docker Compose (`redis://redis:6379/0`) em vez de `localhost`
-
-**Integração com Django Signals**:
-- Signals permitem ações automáticas quando modelos são salvos
-- Use `@receiver(post_save, sender=Model)` para escutar eventos do modelo
-- Sempre envolva handlers de signals em try-except para evitar que erros quebrem a requisição principal
-- Registre signals em `apps.py` com método `ready()` para garantir que carreguem
-
-**Docker Compose para Múltiplos Serviços**:
-- Dockerfiles separados para serviços diferentes (web vs worker) otimizam builds
-- Use `depends_on` para garantir que serviços iniciem na ordem correta
-- Compartilhe variáveis de ambiente mas configure as específicas de cada serviço
-- Use scripts de entrypoint para aguardar dependências (Postgres, Redis) antes de iniciar
-
-**Boas Práticas**:
+- O Celery deve ser inicializado em `app/celery.py` e importado em `app/__init__.py`
+- Use o decorador `@shared_task` para tarefas reutilizáveis
 - Sempre passe dados serializáveis para tarefas Celery (UUIDs como strings, não objetos)
-- Use `task.delay()` para execução assíncrona, `task.apply_async()` para opções avançadas
-- Registre execução e erros de tarefas para debugging
-- Teste Celery localmente com `--pool=solo` para debugging
+- Use scripts de entrypoint para aguardar dependências (Postgres, Redis) antes de iniciar
 
 ### 7. Orquestração com Docker Compose
 
@@ -485,32 +536,45 @@ ALLOWED_HOSTS=seu-dominio.com
 - Use volumes nomeados para persistência de dados
 
 **Lições Aprendidas**:
-
-**Dependências entre Serviços**:
 - `depends_on` garante que serviços iniciem na ordem, mas não espera que estejam prontos
 - Use scripts de entrypoint com `nc` (netcat) para verificar se serviços estão realmente prontos
-- Health checks ajudam o Docker a saber quando serviços estão operacionais
-
-**Variáveis de Ambiente**:
-- Use arquivo `.env` para secrets (nunca commite)
-- Passe variáveis de ambiente através do `docker-compose.yml`
 - Use nomes de serviços para comunicação entre serviços (`flix_db`, `redis`, não `localhost`)
+- Sempre use `exec` para o comando final em scripts de entrypoint para garantir tratamento adequado de sinais
 
-**Scripts de Entrypoint**:
-- Scripts de entrypoint rodam antes do comando principal
-- Use-os para rodar migrações, aguardar dependências ou configurar o ambiente
-- Sempre use `exec` para o comando final para garantir tratamento adequado de sinais
-- Copie scripts de entrypoint DEPOIS de `COPY . .` para preservar permissões
+### 8. Integração com IA usando Padrão Adapter
 
-**Gerenciamento de Volumes**:
-- Volumes nomeados persistem dados mesmo se containers forem removidos
-- Use volumes para bancos de dados para evitar perda de dados
-- Volumes diferentes para serviços diferentes previnem conflitos
+**Desafio**: Integrar OpenAI para gerar descrições de filmes mantendo flexibilidade para trocar provedores de IA e testabilidade.
 
-**Logging**:
-- Suprima logs de serviços de infraestrutura (bancos de dados) usando `logging: driver: "none"`
-- Mantenha logs da aplicação visíveis para debugging
-- Use `docker compose logs -f nome_servico` para seguir logs de serviços específicos
+**Solução**:
+- **Padrão Adapter**: Criada interface abstrata `AIAgentAdapter` em `apps/core/adapters/ai_adapters/base.py`
+- **Implementação Concreta**: `OpenAIAdapter` implementa a interface para integração com OpenAI
+- **Camada de Serviço**: `MovieSuggestorDescriptionService` usa o adapter, não a implementação concreta
+- **Padrão Mixin**: `MovieSuggestorDescriptionMixin` fornece métodos reutilizáveis para views
+
+**Lições Aprendidas**:
+
+**Benefícios do Padrão Adapter**:
+- **Flexibilidade**: Fácil trocar provedores de IA (OpenAI, Anthropic, etc.) sem alterar lógica de negócio
+- **Testabilidade**: Pode criar adapters mock para testes sem chamadas de API
+- **Separação de Responsabilidades**: Lógica de negócio (serviço) separada da integração com API externa (adapter)
+- **Injeção de Dependência**: Views injetam o adapter, tornando dependências explícitas
+
+**Padrão Mixin**:
+- **Reutilização**: `MovieSuggestorDescriptionMixin` pode ser usado em múltiplas views
+- **Composição sobre Herança**: Mixins permitem combinar comportamentos sem hierarquias de herança profundas
+- **Responsabilidade Única**: Cada mixin tem um propósito focado (sugestão de descrição, auditoria, etc.)
+
+**Detalhes de Implementação**:
+- Classe base abstrata define o contrato (`answer(prompt: str) -> str`)
+- Classes de serviço dependem da interface do adapter, não de implementações concretas
+- Views compõem mixins e injetam adapters através de atributos de classe
+- Variável de ambiente `OPENAI_API_KEY` configura o adapter OpenAI
+
+**Boas Práticas**:
+- Sempre defina interfaces abstratas para dependências externas
+- Use injeção de dependência para tornar dependências explícitas e testáveis
+- Mantenha adapters focados na tradução entre seu domínio e APIs externas
+- Use mixins para preocupações transversais que podem ser compartilhadas entre views
 
 ## 🤝 Contribuindo
 

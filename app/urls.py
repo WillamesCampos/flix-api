@@ -18,11 +18,14 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 
+from apps.core.views import HealthCheckView
+
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/v1/', include('authentication.urls')),
-    path('api/v1/', include('genres.urls')),
-    path('api/v1/', include('actors.urls')),
-    path('api/v1/', include('movies.urls')),
-    path('api/v1/', include('reviews.urls')),
+    path('api/v1/', include('apps.authentication.urls')),
+    path('api/v1/', include('apps.genres.urls')),
+    path('api/v1/', include('apps.actors.urls')),
+    path('api/v1/', include('apps.movies.urls')),
+    path('api/v1/', include('apps.reviews.urls')),
+    path('api/v1/health-check/', HealthCheckView.as_view(), name='health-check'),
 ]

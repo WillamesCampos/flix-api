@@ -1,0 +1,26 @@
+FROM python:3.13-alpine
+
+WORKDIR /app
+
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+# Install netcat-openbsd to check if services are ready
+RUN apk add --no-cache netcat-openbsd
+
+# Copy dependency files first (best practice)
+COPY pyproject.toml poetry.lock ./
+
+RUN pip install --upgrade pip
+RUN pip install poetry --no-cache-dir
+RUN poetry config virtualenvs.create false
+
+# Install dependencies BEFORE copying all code
+RUN poetry install --no-root --without group_dev
+
+# Now copy the application code
+COPY . .
+
+# Only now copy entrypoint so it is NOT overwritten
+COPY infrastructure/entrypoint_celery.sh /app/entrypoint_celery.sh
+RUN chmod +x /app/entrypoint_celery.sh

@@ -1,6 +1,11 @@
 # Docker Parameters
 IMAGE_NAME ?= willamesdev/flix_api
 TAG ?= latest
+COMPOSE_FILE ?= infrastructure/docker-compose.yml
+
+COMPOSE = docker compose -f $(COMPOSE_FILE)
+
+# =======================================================================
 
 .PHONY: help
 help: ## List all available commands
@@ -13,25 +18,25 @@ help: ## List all available commands
 # =============================
 
 up: ## Start all Docker services
-	docker compose up
+	$(COMPOSE) up
 
 up-d: ## Start all Docker services in background
-	docker compose up -d
+	$(COMPOSE) up -d
 
 up-build: ## Build and start Docker services
-	docker compose up --build
+	$(COMPOSE) up --build
 
 down: ## Stop and remove Docker services
-	docker compose down
+	$(COMPOSE) down
 
 logs: ## Show Docker services logs
-	docker compose logs -f
+	$(COMPOSE) logs -f
 
 build: ## Build Docker image
-	docker compose build
+	$(COMPOSE) build
 
 build-image: ## Build Docker image for publishing
-	docker build -t $(IMAGE_NAME):$(TAG) -t $(IMAGE_NAME):latest .
+	docker build -t $(IMAGE_NAME):$(TAG) -t $(IMAGE_NAME):latest -f infrastructure/Dockerfile .
 
 push: ## Publish Docker image to registry
 	docker push $(IMAGE_NAME):$(TAG)
@@ -46,29 +51,35 @@ destroy-web: ## Stop and remove web application container
 	docker rm flix_web || true
 
 dev-db: ## Start only database in background
-	docker compose up flix_db -d
+	$(COMPOSE) up flix_db -d
 
 dev-mongo: ## Start only MongoDB in background
-	docker compose up mongo -d
+	$(COMPOSE) up mongo -d
+
+dev-celery: ## Start only Celery worker in background
+	$(COMPOSE) up celery_worker -d
+
+dev: ## Start development services
+	$(COMPOSE) up flix_db mongo celery_worker -d
 
 # =============================
 # DJANGO
 # =============================
 
 migrate: ## Run Django migrations
-	docker compose exec -T flix_web python manage.py migrate
+	$(COMPOSE) exec -T flix_web python manage.py migrate
 
 makemigrations: ## Create new Django migrations
-	docker compose exec -T flix_web python manage.py makemigrations
+	$(COMPOSE) exec -T flix_web python manage.py makemigrations
 
 run: ## Start Django development server (Docker)
-	docker compose exec -T flix_web python manage.py runserver
+	$(COMPOSE) exec -T flix_web python manage.py runserver
 
 run-dev: ## Start Django development server (local)
 	python manage.py runserver
 
 shell: ## Open Django shell (Docker)
-	docker compose exec flix_web python manage.py shell
+	$(COMPOSE) exec -T flix_web python manage.py shell
 
 shell-dev: ## Open Django shell (local)
 	python manage.py shell
@@ -82,7 +93,7 @@ test: ## Run tests and generate coverage report
 	coverage html
 
 test-docker: ## Run tests inside Docker container
-	docker compose exec -T flix_web python -m pytest -vvv
+	$(COMPOSE) exec -T flix_web python -m pytest -vvv
 
 coverage: ## Show coverage report
 	coverage report

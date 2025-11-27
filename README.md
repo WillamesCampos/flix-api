@@ -51,6 +51,8 @@ Flix API is a complete backend application for managing a movie catalog. The pro
   - See [Movie CSV Format](instructions/import_csv/movies.md)
 - 🔐 **JWT Authentication**: Complete authentication system with tokens
 - 🛡️ **Permission System**: Granular permissions based on models and actions
+- 📄 **Pagination**: Custom pagination with configurable page size (10 items per page, max 50)
+- 🤖 **AI-Powered Description Suggestions**: Generate movie descriptions using OpenAI GPT models via adapter pattern
 
 ## 🧰 Technologies
 
@@ -59,6 +61,7 @@ Flix API is a complete backend application for managing a movie catalog. The pro
 - **Django 5.2.1** - Web framework
 - **Django REST Framework 3.16.0** - REST API framework
 - **Django REST Framework Simple JWT 5.5.0** - JWT authentication
+- **OpenAI** - AI integration for description generation
 
 ### Database
 - **PostgreSQL** - Main relational database
@@ -96,7 +99,13 @@ cd flix-api
 
 ### 2. Configure environment variables
 
-Create a `.env` file in the project root with the following variables:
+Copy the `.env.example` file to `.env` and fill in the values:
+
+```bash
+cp .env.example .env
+```
+
+Then edit the `.env` file with your actual values. See `.env.example` for all available environment variables. Here are the main required variables:
 
 ```env
 # Django
@@ -116,6 +125,9 @@ MONGO_INITDB_ROOT_USERNAME=root
 MONGO_INITDB_ROOT_PASSWORD=your-mongo-password
 MONGO_INITDB_DATABASE=flix_logs
 MONGO_URI=mongodb://root:your-mongo-password@mongo:27017/flix_logs?authSource=admin
+
+# OpenAI (for AI description suggestions)
+OPENAI_API_KEY=your-openai-api-key-here
 ```
 
 ### 3. Install dependencies
@@ -181,12 +193,15 @@ curl -X GET http://localhost:8000/api/v1/movies/ \
 ### Main Endpoints
 
 #### Movies
-- `GET /api/v1/movies/` - List all movies
+- `GET /api/v1/movies/` - List all movies (paginated)
 - `POST /api/v1/movies/` - Create a new movie
+  - Optional: `ai_description=true` to generate description with AI
 - `GET /api/v1/movies/{uuid}/` - Get movie details
 - `PATCH /api/v1/movies/{uuid}/` - Update a movie
+  - Optional: `ai_description=true` to regenerate description with AI
 - `DELETE /api/v1/movies/{uuid}/` - Delete a movie
 - `GET /api/v1/movies/stats/` - Movie statistics
+- `POST /api/v1/movies/suggest-description/` - Get AI-generated description suggestion for a movie
 
 #### Actors
 - `GET /api/v1/actors/` - List all actors
@@ -208,6 +223,39 @@ curl -X GET http://localhost:8000/api/v1/movies/ \
 - `GET /api/v1/reviews/{uuid}/` - Get review details
 - `PATCH /api/v1/reviews/{uuid}/` - Update a review
 - `DELETE /api/v1/reviews/{uuid}/` - Delete a review
+
+### Pagination
+
+All list endpoints support pagination with the following query parameters:
+- `page`: Page number (default: 1)
+- `page_size`: Items per page (default: 10, max: 50)
+
+Example:
+```bash
+curl -X GET "http://localhost:8000/api/v1/movies/?page=2&page_size=20" \
+  -H "Authorization: Bearer your-token-here"
+```
+
+### AI Description Suggestions
+
+Generate movie descriptions using OpenAI:
+
+```bash
+# Get a description suggestion for a movie
+curl -X POST http://localhost:8000/api/v1/movies/suggest-description/ \
+  -H "Authorization: Bearer your-token-here" \
+  -H "Content-Type: application/json" \
+  -d '{"movie_uuid": "movie-uuid-here"}'
+
+# Or create/update a movie with AI description
+curl -X POST http://localhost:8000/api/v1/movies/ \
+  -H "Authorization: Bearer your-token-here" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Inception",
+    "ai_description": true
+  }'
+```
 
 ### CSV Import Commands
 
@@ -236,16 +284,18 @@ The project has a complete Makefile to facilitate development. Run `make help` t
 ```bash
 make up              # Start all Docker services
 make up-d            # Start all Docker services in background
-make up-build         # Build and start Docker services
-make down             # Stop and remove Docker services
-make logs             # Show Docker services logs
-make build            # Build Docker image
-make build-image      # Build Docker image for publishing
-make push             # Publish Docker image to registry
-make dev-db           # Start only database in background
-make dev-mongo        # Start only MongoDB in background
-make destroy-db       # Stop and remove database container
-make destroy-web      # Stop and remove web application container
+make up-build        # Build and start Docker services
+make down            # Stop and remove Docker services
+make logs            # Show Docker services logs
+make build           # Build Docker image
+make build-image     # Build Docker image for publishing
+make push            # Publish Docker image to registry
+make dev-db          # Start only database in background
+make dev-mongo       # Start only MongoDB in background
+make dev-celery      # Start only Celery worker in background
+make dev             # Start development services (db, mongo, celery)
+make destroy-db      # Stop and remove database container
+make destroy-web     # Stop and remove web application container
 ```
 
 ### Django
@@ -309,31 +359,55 @@ make coverage-html   # HTML report in htmlcov/
 
 ```
 flix-api/
-├── actors/              # Actors App
-│   ├── management/      # Custom Django commands
-│   ├── migrations/      # Database migrations
-│   ├── tests/          # App tests
-│   ├── models.py       # Data models
-│   ├── serializers.py  # API serializers
-│   ├── views.py        # API views
-│   └── urls.py         # App routes
-├── genres/             # Genres App
-├── movies/              # Movies App
-│   └── services/        # Business services
-├── reviews/            # Reviews App
-├── authentication/     # JWT Authentication
-├── core/               # Shared base models
-├── app/                # Main settings
-│   ├── settings.py     # Django settings
-│   ├── permissions.py  # Custom permissions
-│   └── urls.py         # Main URLs
-├── logs/               # Logging system
-├── conftest.py         # Pytest configuration
-├── docker-compose.yml  # Docker Compose configuration
-├── Dockerfile          # Docker image
-├── Makefile           # Automated commands
-├── pyproject.toml     # Poetry configuration
-└── README.md          # This file
+├── apps/
+│   ├── actors/              # Actors App
+│   │   ├── management/      # Custom Django commands
+│   │   ├── migrations/      # Database migrations
+│   │   ├── services/        # Business services
+│   │   ├── tests/           # App tests
+│   │   ├── models.py        # Data models
+│   │   ├── serializers.py   # API serializers
+│   │   ├── views.py         # API views
+│   │   └── urls.py          # App routes
+│   ├── genres/              # Genres App
+│   ├── movies/              # Movies App
+│   │   ├── mixins/          # Reusable mixins
+│   │   │   ├── audit_entity_mixin.py
+│   │   │   └── movie_suggestor_description_mixin.py
+│   │   ├── services/        # Business services
+│   │   │   ├── import_service.py
+│   │   │   ├── movie_suggestor_description_service.py
+│   │   │   └── stats_service.py
+│   │   ├── management/      # Custom Django commands
+│   │   └── tests/           # App tests
+│   ├── reviews/             # Reviews App
+│   │   ├── services/        # Business services
+│   │   ├── signals.py       # Django signals
+│   │   └── tasks.py         # Celery tasks
+│   ├── authentication/      # JWT Authentication
+│   ├── core/                # Shared utilities
+│   │   ├── adapters/        # Adapter pattern implementations
+│   │   │   └── ai_adapters/ # AI service adapters
+│   │   │       ├── base.py  # Abstract adapter interface
+│   │   │       └── open_ai_adapter.py
+│   │   ├── services/        # Shared services
+│   │   └── models.py        # Base models
+│   └── logs/                # Logging system
+├── app/                     # Main settings
+│   ├── settings.py          # Django settings
+│   ├── permissions.py       # Custom permissions
+│   ├── pagination.py        # Custom pagination
+│   ├── decorators.py        # Request logging decorators
+│   ├── celery.py            # Celery configuration
+│   └── urls.py              # Main URLs
+├── infrastructure/          # Docker configuration
+│   ├── docker-compose.yml
+│   ├── Dockerfile
+│   └── Dockerfile.celery
+├── conftest.py              # Pytest configuration
+├── Makefile                 # Automated commands
+├── pyproject.toml          # Poetry configuration
+└── README.md               # This file
 ```
 
 ### Architecture
@@ -344,6 +418,8 @@ The project follows a modular architecture where each Django app is responsible 
 - **Base models**: Use of `BaseModel` for common fields (UUID, timestamps, auditing)
 - **Services**: Complex business logic isolated in service classes
 - **Permissions**: Centralized and reusable permission system
+- **Mixins**: Reusable behavior through mixin classes (e.g., `MovieSuggestorDescriptionMixin`)
+- **Adapter Pattern**: AI service integration through adapter pattern for flexibility and testability
 
 ## 🚀 Deployment
 
@@ -445,35 +521,10 @@ ALLOWED_HOSTS=your-domain.com
 - Separate Docker containers for web application and Celery worker
 
 **Key Learnings**:
-
-**Celery Configuration**:
-- Celery must be initialized in `app/celery.py` and imported in `app/__init__.py` to ensure it loads with Django
-- Use `@shared_task` decorator for tasks that can be reused across apps
-- Configure Celery settings in Django settings with `CELERY_` prefix
-- Use `CELERY_BROKER_URL` and `CELERY_RESULT_BACKEND` pointing to Redis
-
-**Redis as Message Broker**:
-- Redis acts as a queue: Django puts tasks in, Celery workers take them out
-- Fast and reliable for task queuing
-- Use service name in Docker Compose (`redis://redis:6379/0`) instead of `localhost`
-
-**Django Signals Integration**:
-- Signals allow automatic actions when models are saved
-- Use `@receiver(post_save, sender=Model)` to listen to model events
-- Always wrap signal handlers in try-except to prevent errors from breaking the main request
-- Register signals in `apps.py` with `ready()` method to ensure they load
-
-**Docker Compose for Multiple Services**:
-- Separate Dockerfiles for different services (web vs worker) optimize builds
-- Use `depends_on` to ensure services start in order
-- Share environment variables but configure service-specific ones
-- Use entrypoint scripts to wait for dependencies (Postgres, Redis) before starting
-
-**Best Practices**:
+- Celery must be initialized in `app/celery.py` and imported in `app/__init__.py`
+- Use `@shared_task` decorator for reusable tasks
 - Always pass serializable data to Celery tasks (UUIDs as strings, not objects)
-- Use `task.delay()` for async execution, `task.apply_async()` for advanced options
-- Log task execution and errors for debugging
-- Test Celery locally with `--pool=solo` for debugging
+- Use entrypoint scripts to wait for dependencies (Postgres, Redis) before starting
 
 ### 7. Docker Compose Orchestration
 
@@ -486,32 +537,45 @@ ALLOWED_HOSTS=your-domain.com
 - Use named volumes for data persistence
 
 **Key Learnings**:
-
-**Service Dependencies**:
 - `depends_on` ensures services start in order, but doesn't wait for them to be ready
 - Use entrypoint scripts with `nc` (netcat) to check if services are actually ready
-- Health checks help Docker know when services are operational
-
-**Environment Variables**:
-- Use `.env` file for secrets (never commit it)
-- Pass environment variables through `docker-compose.yml`
 - Use service names for inter-service communication (`flix_db`, `redis`, not `localhost`)
+- Always use `exec` for the final command in entrypoint scripts to ensure proper signal handling
 
-**Entrypoint Scripts**:
-- Entrypoint scripts run before the main command
-- Use them to run migrations, wait for dependencies, or set up the environment
-- Always use `exec` for the final command to ensure proper signal handling
-- Copy entrypoint scripts AFTER `COPY . .` to preserve permissions
+### 8. AI Integration with Adapter Pattern
 
-**Volume Management**:
-- Named volumes persist data even if containers are removed
-- Use volumes for databases to avoid data loss
-- Different volumes for different services prevent conflicts
+**Challenge**: Integrate OpenAI for generating movie descriptions while maintaining flexibility to switch AI providers and testability.
 
-**Logging**:
-- Suppress logs from infrastructure services (databases) using `logging: driver: "none"`
-- Keep application logs visible for debugging
-- Use `docker compose logs -f service_name` to follow specific service logs
+**Solution**:
+- **Adapter Pattern**: Created abstract `AIAgentAdapter` interface in `apps/core/adapters/ai_adapters/base.py`
+- **Concrete Implementation**: `OpenAIAdapter` implements the interface for OpenAI integration
+- **Service Layer**: `MovieSuggestorDescriptionService` uses the adapter, not the concrete implementation
+- **Mixin Pattern**: `MovieSuggestorDescriptionMixin` provides reusable methods for views
+
+**Key Learnings**:
+
+**Adapter Pattern Benefits**:
+- **Flexibility**: Easy to switch AI providers (OpenAI, Anthropic, etc.) without changing business logic
+- **Testability**: Can create mock adapters for testing without API calls
+- **Separation of Concerns**: Business logic (service) separated from external API integration (adapter)
+- **Dependency Injection**: Views inject the adapter, making dependencies explicit
+
+**Mixin Pattern**:
+- **Reusability**: `MovieSuggestorDescriptionMixin` can be used in multiple views
+- **Composition over Inheritance**: Mixins allow combining behaviors without deep inheritance hierarchies
+- **Single Responsibility**: Each mixin has a focused purpose (description suggestion, audit, etc.)
+
+**Implementation Details**:
+- Abstract base class defines the contract (`answer(prompt: str) -> str`)
+- Service classes depend on the adapter interface, not concrete implementations
+- Views compose mixins and inject adapters through class attributes
+- Environment variable `OPENAI_API_KEY` configures the OpenAI adapter
+
+**Best Practices**:
+- Always define abstract interfaces for external dependencies
+- Use dependency injection to make dependencies explicit and testable
+- Keep adapters focused on translation between your domain and external APIs
+- Use mixins for cross-cutting concerns that can be shared across views
 
 ## 🤝 Contributing
 

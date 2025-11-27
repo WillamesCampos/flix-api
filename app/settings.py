@@ -55,13 +55,13 @@ DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER)
 # Application definition
 
 PROJECT_APPS = [
-    'genres',
-    'actors',
-    'movies',
-    'reviews.apps.ReviewsConfig',
-    'authentication',
-    'logs',
-    'core',
+    'apps.genres',
+    'apps.actors',
+    'apps.movies',
+    'apps.reviews.apps.ReviewsConfig',
+    'apps.authentication',
+    'apps.logs',
+    'apps.core',
 ]
 
 THIRD_PARTY_APPS = [
