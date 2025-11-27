@@ -2,7 +2,7 @@ import pytest
 from rest_framework.test import APIRequestFactory
 
 from app.permissions import GlobalDefaultPermission
-from genres.models import Genre
+from apps.genres.models import Genre
 
 
 @pytest.mark.django_db

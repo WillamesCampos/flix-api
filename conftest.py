@@ -2,18 +2,18 @@ import pytest
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group, Permission
 
-from actors.tests.factories import ActorFactory
 from app.test_settings import faker_gen
-from genres.models import Genre
-from genres.tests.factories import GenreFactory
-from reviews.tests.factories import ReviewFactory
+from apps.actors.tests.factories import ActorFactory
+from apps.genres.models import Genre
+from apps.genres.tests.factories import GenreFactory
+from apps.reviews.tests.factories import ReviewFactory
 
 User = get_user_model()
 
 
 @pytest.fixture(autouse=True)
 def mock_review_signal_email_notification(mocker):
-    mocker.patch('reviews.signals.send_review_email_notification_signal')
+    mocker.patch('apps.reviews.signals.send_review_email_notification_signal')
 
 
 @pytest.fixture
