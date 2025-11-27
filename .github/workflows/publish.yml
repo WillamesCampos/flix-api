@@ -32,7 +32,7 @@ jobs:
       POSTGRES_HOST: localhost
       POSTGRES_PORT: 5432
       DJANGO_SETTINGS_MODULE: app.test_settings
-
+      OPENAI_API_KEY: 'my-openai-api-key'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
